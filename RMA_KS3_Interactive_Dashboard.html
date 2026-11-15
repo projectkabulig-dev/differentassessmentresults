@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RMA KS3 Interactive Dashboard — SDO Romblon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Raleway:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --navy:#1B3A6B; --blue:#2563EB; --teal:#0891B2; --green:#16A34A;
+    --yellow:#CA8A04; --orange:#EA580C; --red:#DC2626;
+    --bg:#F0F4FF; --card:#FFFFFF; --border:#D1D5DB;
+    --text:#1E293B; --muted:#64748B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  header{background:linear-gradient(135deg,var(--navy) 0%,#2563EB 100%);color:#fff;padding:20px 32px 16px;display:flex;align-items:center;gap:18px;box-shadow:0 4px 20px rgba(27,58,107,.35);}
+  .header-icon{font-size:2.6rem;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));}
+  .header-text h1{font-family:'Raleway',sans-serif;font-size:1.35rem;font-weight:900;letter-spacing:.5px;}
+  .header-text p{font-size:.78rem;opacity:.8;margin-top:2px;}
+  .header-badge{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.75rem;font-weight:700;text-align:center;}
+  .shell{max-width:1340px;margin:0 auto;padding:24px 20px;}
+  .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+  .kpi-card{background:var(--card);border-radius:14px;padding:18px 16px 14px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-top:4px solid;transition:transform .15s,box-shadow .15s;}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .kpi-icon{font-size:1.6rem;margin-bottom:6px;}
+  .kpi-val{font-family:'Raleway',sans-serif;font-size:1.9rem;font-weight:900;line-height:1;}
+  .kpi-lbl{font-size:.73rem;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .main-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+  .panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;}
+  .panel-head{background:var(--navy);color:#fff;padding:13px 18px;font-size:.82rem;font-weight:800;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.6px;}
+  .panel-body{padding:14px;overflow-y:auto;max-height:70vh;}
+  .nav-tabs{display:flex;gap:0;background:#EEF2FF;border-bottom:2px solid #C7D2FE;}
+  .nav-tab{flex:1;padding:9px 4px;text-align:center;font-size:.68rem;font-weight:700;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.3px;}
+  .nav-tab.active{color:var(--navy);background:#fff;border-bottom:2px solid var(--navy);margin-bottom:-2px;}
+  .nav-tab:hover:not(.active){background:#E0E7FF;color:var(--navy);}
+  .list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;margin-bottom:5px;transition:background .12s,transform .1s;border:1.5px solid transparent;}
+  .list-item:hover{background:#EEF2FF;transform:translateX(2px);border-color:#C7D2FE;}
+  .list-item.active{background:#EEF2FF;border-color:var(--navy);}
+  .list-icon{font-size:1.3rem;flex-shrink:0;}
+  .list-name{font-weight:700;font-size:.82rem;flex:1;}
+  .list-sub{font-size:.7rem;color:var(--muted);}
+  .list-badge{font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:20px;color:#fff;flex-shrink:0;}
+  .mini-bar-wrap{height:5px;background:#E2E8F0;border-radius:3px;margin-top:3px;overflow:hidden;width:100%;}
+  .mini-bar{height:100%;border-radius:3px;transition:width .4s ease;}
+  .right-panel{display:flex;flex-direction:column;gap:18px;}
+  .detail-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;}
+  .detail-head{padding:18px 22px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;}
+  .detail-head h2{font-family:'Raleway',sans-serif;font-size:1.15rem;font-weight:900;}
+  .detail-head p{font-size:.78rem;opacity:.8;margin-top:3px;}
+  .detail-body{padding:20px 22px;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-box{background:#F8FAFF;border-radius:10px;padding:12px 14px;text-align:center;border:1.5px solid #E0E7FF;}
+  .stat-box .sv{font-size:1.5rem;font-weight:900;font-family:'Raleway',sans-serif;}
+  .stat-box .sl{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:2px;}
+  .prof-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  .prof-table th{background:var(--navy);color:#fff;padding:8px 12px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;}
+  .prof-table td{padding:8px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+  .prof-table tr:last-child td{border-bottom:none;}
+  .prof-table tr:hover td{background:#F8FAFF;}
+  .prof-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
+  .bar-cell{display:flex;align-items:center;gap:8px;}
+  .bar-bg{flex:1;height:8px;background:#E2E8F0;border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .pct-text{font-weight:800;width:46px;text-align:right;font-size:.8rem;}
+  .count-text{font-weight:700;width:36px;text-align:right;color:var(--muted);font-size:.8rem;}
+  .grade-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .grade-tab{padding:6px 18px;border-radius:20px;border:2px solid var(--border);background:transparent;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .15s;}
+  .grade-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .grade-tab:hover:not(.active){border-color:var(--navy);color:var(--navy);}
+  .donut-row{display:flex;align-items:center;gap:20px;margin-bottom:20px;}
+  .donut-wrap{flex-shrink:0;position:relative;width:120px;height:120px;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .donut-center .dc-val{font-size:1.4rem;font-weight:900;font-family:'Raleway',sans-serif;color:var(--green);}
+  .donut-center .dc-lbl{font-size:.6rem;color:var(--muted);font-weight:700;}
+  .legend-list{flex:1;}
+  .legend-item{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.76rem;}
+  .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .legend-name{flex:1;color:var(--text);font-weight:600;}
+  .legend-val{font-weight:800;font-size:.76rem;}
+  .summary-section-title{font-size:.8rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #E0E7FF;}
+  .placeholder{text-align:center;padding:60px 20px;color:var(--muted);}
+  .placeholder .ph-icon{font-size:3rem;margin-bottom:12px;}
+  .placeholder p{font-size:.85rem;}
+  .search-wrap{position:relative;margin-bottom:12px;}
+  .search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito',sans-serif;outline:none;transition:border .15s;}
+  .search-wrap input:focus{border-color:var(--blue);}
+  .search-wrap .s-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.9rem;color:var(--muted);}
+  .bg-hp{background:#16A34A;} .bg-p{background:#2563EB;} .bg-np{background:#CA8A04;} .bg-lp{background:#EA580C;} .bg-not{background:#DC2626;}
+  .section-sep{height:1px;background:#E0E7FF;margin:20px 0;}
+  .back-btn{display:inline-flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;color:var(--navy);margin-bottom:14px;transition:background .12s;}
+  .back-btn:hover{background:#E0E7FF;}
+  /* RANKINGS */
+  .rankings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .rank-card{background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07);overflow:hidden;}
+  .rank-head{padding:13px 18px;font-size:.82rem;font-weight:800;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.6px;color:#fff;}
+  .rank-head.top{background:linear-gradient(135deg,#16A34A,#0891B2);}
+  .rank-head.bot{background:linear-gradient(135deg,#DC2626,#EA580C);}
+  .rank-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+  .rank-table th{background:#F8FAFF;color:var(--navy);padding:8px 12px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #E0E7FF;}
+  .rank-table td{padding:8px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+  .rank-table tr:last-child td{border-bottom:none;}
+  .rank-table tr:hover td{background:#F8FAFF;cursor:pointer;}
+  .rank-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-weight:900;font-size:.8rem;flex-shrink:0;}
+  .rank-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;}
+  .rank-silver{background:linear-gradient(135deg,#C0C0C0,#909090);color:#000;}
+  .rank-bronze{background:linear-gradient(135deg,#CD7F32,#8B4513);color:#fff;}
+  .rank-other{background:#EEF2FF;color:var(--navy);}
+  .rank-select{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.78rem;font-family:'Nunito',sans-serif;color:var(--text);background:var(--card);outline:none;cursor:pointer;}
+  .rank-select:focus{border-color:var(--blue);}
+  @media(max-width:900px){.main-grid{grid-template-columns:1fr;}.kpi-strip{grid-template-columns:repeat(3,1fr);}.rankings-grid{grid-template-columns:1fr;}}
+  @media(max-width:600px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.stats-row{grid-template-columns:repeat(2,1fr);}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-icon">&#128218;</div>
+  <div class="header-text">
+    <h1>End-of-School-Year RMA KS3 &#8212; SDO Romblon</h1>
+    <p>Interactive Assessment Dashboard &nbsp;|&nbsp; Region IV-B &nbsp;|&nbsp; All Schools &nbsp;|&nbsp; Grades 7–10</p>
+  </div>
+  <div class="header-badge">
+    <div style="font-size:1.1rem">&#127981;</div>
+    <div>58 Schools</div>
+    <div style="opacity:.7;font-size:.65rem">17 Municipalities</div>
+  </div>
+</header>
+<div class="shell">
+  <div class="kpi-strip" id="kpiStrip"></div>
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-head">&#128194; Navigator</div>
+        <div class="nav-tabs">
+          <button class="nav-tab active" onclick="switchTab('municipality')">&#127968; Mun.</button>
+          <button class="nav-tab" onclick="switchTab('school')">&#127983; School</button>
+          <button class="nav-tab" onclick="switchTab('proficiency')">&#128202; Level</button>
+          <button class="nav-tab" onclick="switchTab('rankings')">&#127942; Rankings</button>
+        </div>
+        <div class="panel-body" id="navBody" style="max-height:68vh;"></div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="detail-card">
+        <div class="detail-head">
+          <h2 id="detailTitle">SDO Romblon &#8212; Division Overview</h2>
+          <p id="detailSub">Click a municipality, school, or proficiency level to view details</p>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const RAW={"Alcantara":{"Alcantara National High School":{"enrolled":860,"assessed":838,"proficiency":{"Not Proficient":700,"Low Proficient":125,"Nearly Proficient":13,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":241,"Not Proficient":209,"Low Proficient":30,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"8":{"assessed":218,"Not Proficient":176,"Low Proficient":37,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0},"9":{"assessed":184,"Not Proficient":154,"Low Proficient":29,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"10":{"assessed":195,"Not Proficient":161,"Low Proficient":29,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0}}},"Melodias Imperial, Sr. National High School":{"enrolled":134,"assessed":134,"proficiency":{"Not Proficient":132,"Low Proficient":2,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":37,"Not Proficient":36,"Low Proficient":1,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":35,"Not Proficient":35,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":26,"Not Proficient":26,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":36,"Not Proficient":35,"Low Proficient":1,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Tugdan NHS":{"enrolled":241,"assessed":240,"proficiency":{"Not Proficient":59,"Low Proficient":166,"Nearly Proficient":10,"Proficient":5,"Highly Proficient":0},"grades":{"7":{"assessed":72,"Not Proficient":31,"Low Proficient":37,"Nearly Proficient":2,"Proficient":2,"Highly Proficient":0},"8":{"assessed":65,"Not Proficient":19,"Low Proficient":46,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":48,"Not Proficient":7,"Low Proficient":39,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"10":{"assessed":55,"Not Proficient":2,"Low Proficient":44,"Nearly Proficient":6,"Proficient":3,"Highly Proficient":0}}}},"Banton":{"Banton NHS":{"enrolled":76,"assessed":76,"proficiency":{"Not Proficient":29,"Low Proficient":47,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":11,"Not Proficient":3,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":31,"Not Proficient":13,"Low Proficient":18,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":10,"Not Proficient":4,"Low Proficient":6,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":24,"Not Proficient":9,"Low Proficient":15,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"TUNGONAN NATIONAL HIGH SCHOOL":{"enrolled":101,"assessed":101,"proficiency":{"Not Proficient":72,"Low Proficient":28,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":29,"Not Proficient":17,"Low Proficient":11,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"8":{"assessed":31,"Not Proficient":19,"Low Proficient":12,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":22,"Not Proficient":19,"Low Proficient":3,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":19,"Not Proficient":17,"Low Proficient":2,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Cajidiocan":{"Cajidiocan National High School":{"enrolled":948,"assessed":945,"proficiency":{"Not Proficient":438,"Low Proficient":488,"Nearly Proficient":19,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":274,"Not Proficient":147,"Low Proficient":116,"Nearly Proficient":11,"Proficient":0,"Highly Proficient":0},"8":{"assessed":257,"Not Proficient":141,"Low Proficient":115,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"9":{"assessed":171,"Not Proficient":81,"Low Proficient":83,"Nearly Proficient":7,"Proficient":0,"Highly Proficient":0},"10":{"assessed":243,"Not Proficient":69,"Low Proficient":174,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Cambalo NHS":{"enrolled":237,"assessed":237,"proficiency":{"Not Proficient":158,"Low Proficient":69,"Nearly Proficient":9,"Proficient":1,"Highly Proficient":0},"grades":{"7":{"assessed":73,"Not Proficient":40,"Low Proficient":30,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"8":{"assessed":57,"Not Proficient":45,"Low Proficient":11,"Nearly Proficient":0,"Proficient":1,"Highly Proficient":0},"9":{"assessed":45,"Not Proficient":20,"Low Proficient":22,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"10":{"assessed":62,"Not Proficient":53,"Low Proficient":6,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0}}},"Danao National High School":{"enrolled":403,"assessed":400,"proficiency":{"Not Proficient":326,"Low Proficient":64,"Nearly Proficient":8,"Proficient":1,"Highly Proficient":1},"grades":{"7":{"assessed":104,"Not Proficient":96,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":117,"Not Proficient":113,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":89,"Not Proficient":64,"Low Proficient":25,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":90,"Not Proficient":53,"Low Proficient":27,"Nearly Proficient":8,"Proficient":1,"Highly Proficient":1}}},"Lumbang East National High School":{"enrolled":339,"assessed":339,"proficiency":{"Not Proficient":339,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":104,"Not Proficient":104,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":85,"Not Proficient":85,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":71,"Not Proficient":71,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":79,"Not Proficient":79,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Calatrava":{"Calatrava National High School":{"enrolled":666,"assessed":656,"proficiency":{"Not Proficient":0,"Low Proficient":77,"Nearly Proficient":528,"Proficient":51,"Highly Proficient":0},"grades":{"7":{"assessed":171,"Not Proficient":0,"Low Proficient":49,"Nearly Proficient":112,"Proficient":10,"Highly Proficient":0},"8":{"assessed":159,"Not Proficient":0,"Low Proficient":6,"Nearly Proficient":139,"Proficient":14,"Highly Proficient":0},"9":{"assessed":153,"Not Proficient":0,"Low Proficient":12,"Nearly Proficient":130,"Proficient":11,"Highly Proficient":0},"10":{"assessed":173,"Not Proficient":0,"Low Proficient":10,"Nearly Proficient":147,"Proficient":16,"Highly Proficient":0}}},"Pascual Catajay Linao National High School":{"enrolled":122,"assessed":106,"proficiency":{"Not Proficient":0,"Low Proficient":41,"Nearly Proficient":47,"Proficient":18,"Highly Proficient":0},"grades":{"7":{"assessed":29,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":17,"Proficient":12,"Highly Proficient":0},"8":{"assessed":21,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":15,"Proficient":6,"Highly Proficient":0},"9":{"assessed":26,"Not Proficient":0,"Low Proficient":19,"Nearly Proficient":7,"Proficient":0,"Highly Proficient":0},"10":{"assessed":30,"Not Proficient":0,"Low Proficient":22,"Nearly Proficient":8,"Proficient":0,"Highly Proficient":0}}},"Talisay Integrated School":{"enrolled":56,"assessed":56,"proficiency":{"Not Proficient":0,"Low Proficient":6,"Nearly Proficient":32,"Proficient":18,"Highly Proficient":0},"grades":{"7":{"assessed":19,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":12,"Proficient":7,"Highly Proficient":0},"8":{"assessed":37,"Not Proficient":0,"Low Proficient":6,"Nearly Proficient":20,"Proficient":11,"Highly Proficient":0},"9":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Victorio Sixon Balogo National High School":{"enrolled":153,"assessed":142,"proficiency":{"Not Proficient":65,"Low Proficient":73,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":36,"Not Proficient":12,"Low Proficient":20,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"8":{"assessed":40,"Not Proficient":15,"Low Proficient":25,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":36,"Not Proficient":21,"Low Proficient":15,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":30,"Not Proficient":17,"Low Proficient":13,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Concepcion":{"Bakhawan National High School (Formerly Concepcion National High School)":{"enrolled":51,"assessed":51,"proficiency":{"Not Proficient":39,"Low Proficient":11,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":16,"Not Proficient":8,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":11,"Not Proficient":7,"Low Proficient":3,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"9":{"assessed":7,"Not Proficient":7,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":17,"Not Proficient":17,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Concepcion NHS (Main)":{"enrolled":157,"assessed":141,"proficiency":{"Not Proficient":66,"Low Proficient":72,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":30,"Not Proficient":15,"Low Proficient":13,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"8":{"assessed":40,"Not Proficient":15,"Low Proficient":25,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":30,"Not Proficient":22,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":41,"Not Proficient":14,"Low Proficient":26,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0}}}},"Corcuera":{"Corcuera National High School":{"enrolled":236,"assessed":234,"proficiency":{"Not Proficient":57,"Low Proficient":96,"Nearly Proficient":71,"Proficient":9,"Highly Proficient":1},"grades":{"7":{"assessed":63,"Not Proficient":22,"Low Proficient":10,"Nearly Proficient":29,"Proficient":2,"Highly Proficient":0},"8":{"assessed":61,"Not Proficient":5,"Low Proficient":32,"Nearly Proficient":22,"Proficient":1,"Highly Proficient":1},"9":{"assessed":50,"Not Proficient":17,"Low Proficient":23,"Nearly Proficient":10,"Proficient":0,"Highly Proficient":0},"10":{"assessed":60,"Not Proficient":13,"Low Proficient":31,"Nearly Proficient":10,"Proficient":6,"Highly Proficient":0}}},"Mabini NHS":{"enrolled":300,"assessed":297,"proficiency":{"Not Proficient":218,"Low Proficient":74,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":86,"Not Proficient":30,"Low Proficient":51,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0},"8":{"assessed":74,"Not Proficient":62,"Low Proficient":12,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":61,"Not Proficient":54,"Low Proficient":7,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":76,"Not Proficient":72,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Mauricio F. Fabito National High School":{"enrolled":133,"assessed":132,"proficiency":{"Not Proficient":117,"Low Proficient":15,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":34,"Not Proficient":20,"Low Proficient":14,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":27,"Not Proficient":27,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":42,"Not Proficient":41,"Low Proficient":1,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":29,"Not Proficient":29,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Ferrol":{"Ferrol National High School":{"enrolled":447,"assessed":427,"proficiency":{"Not Proficient":285,"Low Proficient":133,"Nearly Proficient":8,"Proficient":1,"Highly Proficient":0},"grades":{"7":{"assessed":99,"Not Proficient":71,"Low Proficient":24,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"8":{"assessed":139,"Not Proficient":81,"Low Proficient":54,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"9":{"assessed":90,"Not Proficient":57,"Low Proficient":32,"Nearly Proficient":0,"Proficient":1,"Highly Proficient":0},"10":{"assessed":99,"Not Proficient":76,"Low Proficient":23,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Looc":{"Agojo Integrated School":{"enrolled":157,"assessed":157,"proficiency":{"Not Proficient":0,"Low Proficient":26,"Nearly Proficient":69,"Proficient":58,"Highly Proficient":4},"grades":{"7":{"assessed":40,"Not Proficient":0,"Low Proficient":5,"Nearly Proficient":11,"Proficient":24,"Highly Proficient":0},"8":{"assessed":42,"Not Proficient":0,"Low Proficient":5,"Nearly Proficient":20,"Proficient":13,"Highly Proficient":4},"9":{"assessed":28,"Not Proficient":0,"Low Proficient":5,"Nearly Proficient":13,"Proficient":10,"Highly Proficient":0},"10":{"assessed":47,"Not Proficient":0,"Low Proficient":11,"Nearly Proficient":25,"Proficient":11,"Highly Proficient":0}}},"Buenavista National High School":{"enrolled":165,"assessed":164,"proficiency":{"Not Proficient":74,"Low Proficient":60,"Nearly Proficient":30,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":34,"Not Proficient":9,"Low Proficient":12,"Nearly Proficient":13,"Proficient":0,"Highly Proficient":0},"8":{"assessed":45,"Not Proficient":28,"Low Proficient":9,"Nearly Proficient":8,"Proficient":0,"Highly Proficient":0},"9":{"assessed":51,"Not Proficient":30,"Low Proficient":16,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0},"10":{"assessed":34,"Not Proficient":7,"Low Proficient":23,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0}}},"LOOC NATIONAL HIGH SCHOOL":{"enrolled":1288,"assessed":1285,"proficiency":{"Not Proficient":254,"Low Proficient":511,"Nearly Proficient":252,"Proficient":163,"Highly Proficient":105},"grades":{"7":{"assessed":319,"Not Proficient":10,"Low Proficient":52,"Nearly Proficient":68,"Proficient":91,"Highly Proficient":98},"8":{"assessed":335,"Not Proficient":28,"Low Proficient":125,"Nearly Proficient":136,"Proficient":45,"Highly Proficient":1},"9":{"assessed":282,"Not Proficient":58,"Low Proficient":177,"Nearly Proficient":33,"Proficient":12,"Highly Proficient":2},"10":{"assessed":349,"Not Proficient":158,"Low Proficient":157,"Nearly Proficient":15,"Proficient":15,"Highly Proficient":4}}},"Limon Norte National High School":{"enrolled":196,"assessed":196,"proficiency":{"Not Proficient":1,"Low Proficient":37,"Nearly Proficient":50,"Proficient":106,"Highly Proficient":2},"grades":{"7":{"assessed":53,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":15,"Proficient":38,"Highly Proficient":0},"8":{"assessed":57,"Not Proficient":1,"Low Proficient":1,"Nearly Proficient":6,"Proficient":47,"Highly Proficient":2},"9":{"assessed":48,"Not Proficient":0,"Low Proficient":32,"Nearly Proficient":9,"Proficient":7,"Highly Proficient":0},"10":{"assessed":38,"Not Proficient":0,"Low Proficient":4,"Nearly Proficient":20,"Proficient":14,"Highly Proficient":0}}}},"Magdiwang":{"Agutay NHS":{"enrolled":266,"assessed":259,"proficiency":{"Not Proficient":235,"Low Proficient":24,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":73,"Not Proficient":69,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":80,"Not Proficient":75,"Low Proficient":5,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":55,"Not Proficient":48,"Low Proficient":7,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":51,"Not Proficient":43,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Magdiwang NHS":{"enrolled":990,"assessed":978,"proficiency":{"Not Proficient":719,"Low Proficient":218,"Nearly Proficient":30,"Proficient":11,"Highly Proficient":0},"grades":{"7":{"assessed":286,"Not Proficient":133,"Low Proficient":133,"Nearly Proficient":17,"Proficient":3,"Highly Proficient":0},"8":{"assessed":255,"Not Proficient":199,"Low Proficient":35,"Nearly Proficient":13,"Proficient":8,"Highly Proficient":0},"9":{"assessed":205,"Not Proficient":178,"Low Proficient":27,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":232,"Not Proficient":209,"Low Proficient":23,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Odiongan":{"Anahao Integrated School":{"enrolled":62,"assessed":62,"proficiency":{"Not Proficient":45,"Low Proficient":13,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":17,"Not Proficient":7,"Low Proficient":8,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"8":{"assessed":26,"Not Proficient":22,"Low Proficient":3,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"9":{"assessed":19,"Not Proficient":16,"Low Proficient":2,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"10":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Gabawan National High School":{"enrolled":109,"assessed":103,"proficiency":{"Not Proficient":73,"Low Proficient":15,"Nearly Proficient":11,"Proficient":4,"Highly Proficient":0},"grades":{"7":{"assessed":26,"Not Proficient":18,"Low Proficient":5,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"8":{"assessed":32,"Not Proficient":23,"Low Proficient":4,"Nearly Proficient":3,"Proficient":2,"Highly Proficient":0},"9":{"assessed":27,"Not Proficient":20,"Low Proficient":3,"Nearly Proficient":3,"Proficient":1,"Highly Proficient":0},"10":{"assessed":18,"Not Proficient":12,"Low Proficient":3,"Nearly Proficient":2,"Proficient":1,"Highly Proficient":0}}},"Libertad National High School":{"enrolled":400,"assessed":388,"proficiency":{"Not Proficient":380,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":96,"Not Proficient":92,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":95,"Not Proficient":93,"Low Proficient":2,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":99,"Not Proficient":98,"Low Proficient":1,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":98,"Not Proficient":97,"Low Proficient":1,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Mayha National High School-RNHS (Odiongan) Ext.":{"enrolled":325,"assessed":323,"proficiency":{"Not Proficient":212,"Low Proficient":68,"Nearly Proficient":43,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":89,"Not Proficient":36,"Low Proficient":36,"Nearly Proficient":17,"Proficient":0,"Highly Proficient":0},"8":{"assessed":100,"Not Proficient":74,"Low Proficient":14,"Nearly Proficient":12,"Proficient":0,"Highly Proficient":0},"9":{"assessed":68,"Not Proficient":58,"Low Proficient":6,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"10":{"assessed":66,"Not Proficient":44,"Low Proficient":12,"Nearly Proficient":10,"Proficient":0,"Highly Proficient":0}}},"Odiongan National High School":{"enrolled":1632,"assessed":1611,"proficiency":{"Not Proficient":163,"Low Proficient":683,"Nearly Proficient":431,"Proficient":217,"Highly Proficient":117},"grades":{"7":{"assessed":399,"Not Proficient":27,"Low Proficient":151,"Nearly Proficient":118,"Proficient":85,"Highly Proficient":18},"8":{"assessed":402,"Not Proficient":23,"Low Proficient":85,"Nearly Proficient":181,"Proficient":66,"Highly Proficient":47},"9":{"assessed":366,"Not Proficient":36,"Low Proficient":207,"Nearly Proficient":57,"Proficient":37,"Highly Proficient":29},"10":{"assessed":444,"Not Proficient":77,"Low Proficient":240,"Nearly Proficient":75,"Proficient":29,"Highly Proficient":23}}},"Pato-O Integrated School":{"enrolled":72,"assessed":72,"proficiency":{"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":48,"Proficient":22,"Highly Proficient":2},"grades":{"7":{"assessed":43,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":26,"Proficient":17,"Highly Proficient":0},"8":{"assessed":29,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":22,"Proficient":5,"Highly Proficient":2},"9":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"Romblon":{"ALAD NATIONAL HIGH SCHOOL":{"enrolled":145,"assessed":142,"proficiency":{"Not Proficient":4,"Low Proficient":85,"Nearly Proficient":32,"Proficient":18,"Highly Proficient":3},"grades":{"7":{"assessed":27,"Not Proficient":2,"Low Proficient":18,"Nearly Proficient":7,"Proficient":0,"Highly Proficient":0},"8":{"assessed":44,"Not Proficient":2,"Low Proficient":34,"Nearly Proficient":8,"Proficient":0,"Highly Proficient":0},"9":{"assessed":32,"Not Proficient":0,"Low Proficient":14,"Nearly Proficient":9,"Proficient":8,"Highly Proficient":1},"10":{"assessed":39,"Not Proficient":0,"Low Proficient":19,"Nearly Proficient":8,"Proficient":10,"Highly Proficient":2}}},"Agnipa National High School":{"enrolled":489,"assessed":467,"proficiency":{"Not Proficient":353,"Low Proficient":104,"Nearly Proficient":10,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":126,"Not Proficient":89,"Low Proficient":35,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"8":{"assessed":118,"Not Proficient":76,"Low Proficient":34,"Nearly Proficient":8,"Proficient":0,"Highly Proficient":0},"9":{"assessed":116,"Not Proficient":101,"Low Proficient":15,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":107,"Not Proficient":87,"Low Proficient":20,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Macario Molina NHS":{"enrolled":375,"assessed":373,"proficiency":{"Not Proficient":208,"Low Proficient":144,"Nearly Proficient":20,"Proficient":1,"Highly Proficient":0},"grades":{"7":{"assessed":90,"Not Proficient":37,"Low Proficient":33,"Nearly Proficient":19,"Proficient":1,"Highly Proficient":0},"8":{"assessed":113,"Not Proficient":79,"Low Proficient":33,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"9":{"assessed":74,"Not Proficient":43,"Low Proficient":31,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":96,"Not Proficient":49,"Low Proficient":47,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Romblon NHS, Romblon":{"enrolled":2018,"assessed":2018,"proficiency":{"Not Proficient":1412,"Low Proficient":501,"Nearly Proficient":94,"Proficient":9,"Highly Proficient":2},"grades":{"7":{"assessed":544,"Not Proficient":393,"Low Proficient":102,"Nearly Proficient":45,"Proficient":4,"Highly Proficient":0},"8":{"assessed":495,"Not Proficient":327,"Low Proficient":132,"Nearly Proficient":35,"Proficient":0,"Highly Proficient":1},"9":{"assessed":474,"Not Proficient":361,"Low Proficient":104,"Nearly Proficient":8,"Proficient":1,"Highly Proficient":0},"10":{"assessed":505,"Not Proficient":331,"Low Proficient":163,"Nearly Proficient":6,"Proficient":4,"Highly Proficient":1}}}},"San Agustin":{"Cabolutan NHS":{"enrolled":138,"assessed":138,"proficiency":{"Not Proficient":13,"Low Proficient":93,"Nearly Proficient":22,"Proficient":10,"Highly Proficient":0},"grades":{"7":{"assessed":32,"Not Proficient":1,"Low Proficient":20,"Nearly Proficient":7,"Proficient":4,"Highly Proficient":0},"8":{"assessed":40,"Not Proficient":7,"Low Proficient":27,"Nearly Proficient":4,"Proficient":2,"Highly Proficient":0},"9":{"assessed":23,"Not Proficient":3,"Low Proficient":14,"Nearly Proficient":6,"Proficient":0,"Highly Proficient":0},"10":{"assessed":43,"Not Proficient":2,"Low Proficient":32,"Nearly Proficient":5,"Proficient":4,"Highly Proficient":0}}},"Carmen NHS (Cabolutan NHS Ext.)":{"enrolled":175,"assessed":166,"proficiency":{"Not Proficient":61,"Low Proficient":64,"Nearly Proficient":23,"Proficient":16,"Highly Proficient":2},"grades":{"7":{"assessed":53,"Not Proficient":5,"Low Proficient":8,"Nearly Proficient":22,"Proficient":16,"Highly Proficient":2},"8":{"assessed":33,"Not Proficient":29,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":33,"Not Proficient":14,"Low Proficient":19,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":47,"Not Proficient":13,"Low Proficient":33,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0}}},"EDUARDO M. MORENO NATIONAL HIGH SCHOOL":{"enrolled":265,"assessed":225,"proficiency":{"Not Proficient":74,"Low Proficient":55,"Nearly Proficient":32,"Proficient":33,"Highly Proficient":31},"grades":{"7":{"assessed":58,"Not Proficient":22,"Low Proficient":16,"Nearly Proficient":7,"Proficient":6,"Highly Proficient":7},"8":{"assessed":60,"Not Proficient":24,"Low Proficient":15,"Nearly Proficient":6,"Proficient":9,"Highly Proficient":6},"9":{"assessed":47,"Not Proficient":15,"Low Proficient":9,"Nearly Proficient":9,"Proficient":9,"Highly Proficient":5},"10":{"assessed":60,"Not Proficient":13,"Low Proficient":15,"Nearly Proficient":10,"Proficient":9,"Highly Proficient":13}}},"Esteban Madrona National High School":{"enrolled":416,"assessed":394,"proficiency":{"Not Proficient":79,"Low Proficient":167,"Nearly Proficient":118,"Proficient":29,"Highly Proficient":1},"grades":{"7":{"assessed":115,"Not Proficient":18,"Low Proficient":42,"Nearly Proficient":49,"Proficient":6,"Highly Proficient":0},"8":{"assessed":119,"Not Proficient":36,"Low Proficient":36,"Nearly Proficient":40,"Proficient":7,"Highly Proficient":0},"9":{"assessed":83,"Not Proficient":25,"Low Proficient":29,"Nearly Proficient":18,"Proficient":11,"Highly Proficient":0},"10":{"assessed":77,"Not Proficient":0,"Low Proficient":60,"Nearly Proficient":11,"Proficient":5,"Highly Proficient":1}}},"San Agustin National Trade School":{"enrolled":314,"assessed":314,"proficiency":{"Not Proficient":42,"Low Proficient":139,"Nearly Proficient":83,"Proficient":50,"Highly Proficient":0},"grades":{"7":{"assessed":82,"Not Proficient":17,"Low Proficient":38,"Nearly Proficient":16,"Proficient":11,"Highly Proficient":0},"8":{"assessed":83,"Not Proficient":21,"Low Proficient":33,"Nearly Proficient":20,"Proficient":9,"Highly Proficient":0},"9":{"assessed":76,"Not Proficient":2,"Low Proficient":44,"Nearly Proficient":18,"Proficient":12,"Highly Proficient":0},"10":{"assessed":73,"Not Proficient":2,"Low Proficient":24,"Nearly Proficient":29,"Proficient":18,"Highly Proficient":0}}}},"San Andres":{"Linawan Integrated School":{"enrolled":149,"assessed":149,"proficiency":{"Not Proficient":2,"Low Proficient":0,"Nearly Proficient":104,"Proficient":43,"Highly Proficient":0},"grades":{"7":{"assessed":45,"Not Proficient":2,"Low Proficient":0,"Nearly Proficient":18,"Proficient":25,"Highly Proficient":0},"8":{"assessed":37,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":33,"Proficient":4,"Highly Proficient":0},"9":{"assessed":31,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":24,"Proficient":7,"Highly Proficient":0},"10":{"assessed":36,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":29,"Proficient":7,"Highly Proficient":0}}},"Marigondon Norte Integrated School":{"enrolled":73,"assessed":65,"proficiency":{"Not Proficient":0,"Low Proficient":8,"Nearly Proficient":42,"Proficient":9,"Highly Proficient":6},"grades":{"7":{"assessed":21,"Not Proficient":0,"Low Proficient":2,"Nearly Proficient":13,"Proficient":4,"Highly Proficient":2},"8":{"assessed":29,"Not Proficient":0,"Low Proficient":3,"Nearly Proficient":19,"Proficient":3,"Highly Proficient":4},"9":{"assessed":15,"Not Proficient":0,"Low Proficient":3,"Nearly Proficient":10,"Proficient":2,"Highly Proficient":0},"10":{"assessed":0,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"San Andres Cultural High School":{"enrolled":120,"assessed":118,"proficiency":{"Not Proficient":10,"Low Proficient":98,"Nearly Proficient":10,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":28,"Not Proficient":3,"Low Proficient":25,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":34,"Not Proficient":5,"Low Proficient":26,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"9":{"assessed":31,"Not Proficient":2,"Low Proficient":27,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"10":{"assessed":25,"Not Proficient":0,"Low Proficient":20,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0}}},"San Andres NHS":{"enrolled":676,"assessed":664,"proficiency":{"Not Proficient":351,"Low Proficient":128,"Nearly Proficient":130,"Proficient":47,"Highly Proficient":8},"grades":{"7":{"assessed":185,"Not Proficient":114,"Low Proficient":34,"Nearly Proficient":26,"Proficient":11,"Highly Proficient":0},"8":{"assessed":179,"Not Proficient":121,"Low Proficient":33,"Nearly Proficient":17,"Proficient":8,"Highly Proficient":0},"9":{"assessed":124,"Not Proficient":24,"Low Proficient":32,"Nearly Proficient":46,"Proficient":19,"Highly Proficient":3},"10":{"assessed":176,"Not Proficient":92,"Low Proficient":29,"Nearly Proficient":41,"Proficient":9,"Highly Proficient":5}}},"Tanagan National High School":{"enrolled":316,"assessed":316,"proficiency":{"Not Proficient":194,"Low Proficient":94,"Nearly Proficient":24,"Proficient":4,"Highly Proficient":0},"grades":{"7":{"assessed":115,"Not Proficient":81,"Low Proficient":34,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":69,"Not Proficient":45,"Low Proficient":20,"Nearly Proficient":4,"Proficient":0,"Highly Proficient":0},"9":{"assessed":65,"Not Proficient":44,"Low Proficient":14,"Nearly Proficient":5,"Proficient":2,"Highly Proficient":0},"10":{"assessed":67,"Not Proficient":24,"Low Proficient":26,"Nearly Proficient":15,"Proficient":2,"Highly Proficient":0}}}},"San Fernando":{"Armin Rios-Marin National High School":{"enrolled":110,"assessed":97,"proficiency":{"Not Proficient":97,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":27,"Not Proficient":27,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":32,"Not Proficient":32,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":17,"Not Proficient":17,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":21,"Not Proficient":21,"Low Proficient":0,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}},"Azagra National High School":{"enrolled":261,"assessed":261,"proficiency":{"Not Proficient":173,"Low Proficient":75,"Nearly Proficient":11,"Proficient":2,"Highly Proficient":0},"grades":{"7":{"assessed":81,"Not Proficient":50,"Low Proficient":30,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0},"8":{"assessed":55,"Not Proficient":34,"Low Proficient":16,"Nearly Proficient":5,"Proficient":0,"Highly Proficient":0},"9":{"assessed":60,"Not Proficient":50,"Low Proficient":9,"Nearly Proficient":0,"Proficient":1,"Highly Proficient":0},"10":{"assessed":65,"Not Proficient":39,"Low Proficient":20,"Nearly Proficient":5,"Proficient":1,"Highly Proficient":0}}},"Don Carlos M. Mejias Memorial NHS":{"enrolled":829,"assessed":801,"proficiency":{"Not Proficient":279,"Low Proficient":443,"Nearly Proficient":59,"Proficient":13,"Highly Proficient":7},"grades":{"7":{"assessed":251,"Not Proficient":120,"Low Proficient":83,"Nearly Proficient":36,"Proficient":8,"Highly Proficient":4},"8":{"assessed":163,"Not Proficient":71,"Low Proficient":82,"Nearly Proficient":7,"Proficient":2,"Highly Proficient":1},"9":{"assessed":183,"Not Proficient":33,"Low Proficient":139,"Nearly Proficient":9,"Proficient":1,"Highly Proficient":1},"10":{"assessed":204,"Not Proficient":55,"Low Proficient":139,"Nearly Proficient":7,"Proficient":2,"Highly Proficient":1}}},"España National High School":{"enrolled":435,"assessed":426,"proficiency":{"Not Proficient":290,"Low Proficient":102,"Nearly Proficient":14,"Proficient":14,"Highly Proficient":6},"grades":{"7":{"assessed":119,"Not Proficient":73,"Low Proficient":43,"Nearly Proficient":3,"Proficient":0,"Highly Proficient":0},"8":{"assessed":109,"Not Proficient":90,"Low Proficient":8,"Nearly Proficient":3,"Proficient":5,"Highly Proficient":3},"9":{"assessed":93,"Not Proficient":39,"Low Proficient":34,"Nearly Proficient":8,"Proficient":9,"Highly Proficient":3},"10":{"assessed":105,"Not Proficient":88,"Low Proficient":17,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}},"San Jose":{"Lindero Integrated School":{"enrolled":64,"assessed":64,"proficiency":{"Not Proficient":23,"Low Proficient":23,"Nearly Proficient":14,"Proficient":4,"Highly Proficient":0},"grades":{"7":{"assessed":14,"Not Proficient":2,"Low Proficient":3,"Nearly Proficient":7,"Proficient":2,"Highly Proficient":0},"8":{"assessed":18,"Not Proficient":3,"Low Proficient":9,"Nearly Proficient":4,"Proficient":2,"Highly Proficient":0},"9":{"assessed":18,"Not Proficient":10,"Low Proficient":6,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"10":{"assessed":14,"Not Proficient":8,"Low Proficient":5,"Nearly Proficient":1,"Proficient":0,"Highly Proficient":0}}},"Pinamihagan National High School":{"enrolled":218,"assessed":218,"proficiency":{"Not Proficient":85,"Low Proficient":94,"Nearly Proficient":25,"Proficient":14,"Highly Proficient":0},"grades":{"7":{"assessed":60,"Not Proficient":29,"Low Proficient":25,"Nearly Proficient":4,"Proficient":2,"Highly Proficient":0},"8":{"assessed":58,"Not Proficient":21,"Low Proficient":24,"Nearly Proficient":8,"Proficient":5,"Highly Proficient":0},"9":{"assessed":44,"Not Proficient":19,"Low Proficient":19,"Nearly Proficient":4,"Proficient":2,"Highly Proficient":0},"10":{"assessed":56,"Not Proficient":16,"Low Proficient":26,"Nearly Proficient":9,"Proficient":5,"Highly Proficient":0}}},"San Jose Agricultural HS":{"enrolled":733,"assessed":733,"proficiency":{"Not Proficient":545,"Low Proficient":116,"Nearly Proficient":43,"Proficient":29,"Highly Proficient":0},"grades":{"7":{"assessed":210,"Not Proficient":176,"Low Proficient":19,"Nearly Proficient":10,"Proficient":5,"Highly Proficient":0},"8":{"assessed":217,"Not Proficient":163,"Low Proficient":30,"Nearly Proficient":16,"Proficient":8,"Highly Proficient":0},"9":{"assessed":156,"Not Proficient":118,"Low Proficient":25,"Nearly Proficient":6,"Proficient":7,"Highly Proficient":0},"10":{"assessed":150,"Not Proficient":88,"Low Proficient":42,"Nearly Proficient":11,"Proficient":9,"Highly Proficient":0}}}},"Santa Fe":{"Agripino Armedilla National High School":{"enrolled":153,"assessed":146,"proficiency":{"Not Proficient":50,"Low Proficient":74,"Nearly Proficient":17,"Proficient":5,"Highly Proficient":0},"grades":{"7":{"assessed":43,"Not Proficient":15,"Low Proficient":23,"Nearly Proficient":4,"Proficient":1,"Highly Proficient":0},"8":{"assessed":47,"Not Proficient":16,"Low Proficient":24,"Nearly Proficient":5,"Proficient":2,"Highly Proficient":0},"9":{"assessed":22,"Not Proficient":9,"Low Proficient":11,"Nearly Proficient":2,"Proficient":0,"Highly Proficient":0},"10":{"assessed":34,"Not Proficient":10,"Low Proficient":16,"Nearly Proficient":6,"Proficient":2,"Highly Proficient":0}}},"Guinbirayan National High School":{"enrolled":381,"assessed":381,"proficiency":{"Not Proficient":110,"Low Proficient":88,"Nearly Proficient":143,"Proficient":38,"Highly Proficient":2},"grades":{"7":{"assessed":109,"Not Proficient":16,"Low Proficient":19,"Nearly Proficient":43,"Proficient":30,"Highly Proficient":1},"8":{"assessed":102,"Not Proficient":48,"Low Proficient":23,"Nearly Proficient":27,"Proficient":3,"Highly Proficient":1},"9":{"assessed":89,"Not Proficient":33,"Low Proficient":25,"Nearly Proficient":31,"Proficient":0,"Highly Proficient":0},"10":{"assessed":81,"Not Proficient":13,"Low Proficient":21,"Nearly Proficient":42,"Proficient":5,"Highly Proficient":0}}},"Sta. Fe NHS":{"enrolled":787,"assessed":744,"proficiency":{"Not Proficient":110,"Low Proficient":432,"Nearly Proficient":137,"Proficient":57,"Highly Proficient":8},"grades":{"7":{"assessed":226,"Not Proficient":52,"Low Proficient":140,"Nearly Proficient":29,"Proficient":5,"Highly Proficient":0},"8":{"assessed":181,"Not Proficient":36,"Low Proficient":104,"Nearly Proficient":28,"Proficient":13,"Highly Proficient":0},"9":{"assessed":171,"Not Proficient":17,"Low Proficient":136,"Nearly Proficient":16,"Proficient":1,"Highly Proficient":1},"10":{"assessed":166,"Not Proficient":5,"Low Proficient":52,"Nearly Proficient":64,"Proficient":38,"Highly Proficient":7}}},"Tranquilino Cawaling Sr. National High School":{"enrolled":218,"assessed":211,"proficiency":{"Not Proficient":91,"Low Proficient":80,"Nearly Proficient":24,"Proficient":16,"Highly Proficient":0},"grades":{"7":{"assessed":66,"Not Proficient":30,"Low Proficient":24,"Nearly Proficient":8,"Proficient":4,"Highly Proficient":0},"8":{"assessed":52,"Not Proficient":20,"Low Proficient":21,"Nearly Proficient":6,"Proficient":5,"Highly Proficient":0},"9":{"assessed":44,"Not Proficient":20,"Low Proficient":18,"Nearly Proficient":4,"Proficient":2,"Highly Proficient":0},"10":{"assessed":49,"Not Proficient":21,"Low Proficient":17,"Nearly Proficient":6,"Proficient":5,"Highly Proficient":0}}}},"Santa Maria":{"Santa Maria NHS":{"enrolled":279,"assessed":279,"proficiency":{"Not Proficient":74,"Low Proficient":101,"Nearly Proficient":66,"Proficient":34,"Highly Proficient":4},"grades":{"7":{"assessed":101,"Not Proficient":25,"Low Proficient":40,"Nearly Proficient":27,"Proficient":9,"Highly Proficient":0},"8":{"assessed":92,"Not Proficient":25,"Low Proficient":32,"Nearly Proficient":24,"Proficient":11,"Highly Proficient":0},"9":{"assessed":75,"Not Proficient":24,"Low Proficient":29,"Nearly Proficient":11,"Proficient":7,"Highly Proficient":4},"10":{"assessed":11,"Not Proficient":0,"Low Proficient":0,"Nearly Proficient":4,"Proficient":7,"Highly Proficient":0}}},"Sto Nino National High School":{"enrolled":155,"assessed":152,"proficiency":{"Not Proficient":125,"Low Proficient":27,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"grades":{"7":{"assessed":47,"Not Proficient":39,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"8":{"assessed":44,"Not Proficient":36,"Low Proficient":8,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"9":{"assessed":24,"Not Proficient":20,"Low Proficient":4,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0},"10":{"assessed":37,"Not Proficient":30,"Low Proficient":7,"Nearly Proficient":0,"Proficient":0,"Highly Proficient":0}}}}};
+
+const LEVELS = ['Not Proficient','Low Proficient','Nearly Proficient','Proficient','Highly Proficient'];
+const LEVEL_COLORS = {'Not Proficient':'#DC2626','Low Proficient':'#EA580C','Nearly Proficient':'#CA8A04','Proficient':'#2563EB','Highly Proficient':'#16A34A'};
+const LEVEL_ICONS  = {'Not Proficient':'&#128308;','Low Proficient':'&#128992;','Nearly Proficient':'&#128993;','Proficient':'&#128309;','Highly Proficient':'&#128994;'};
+// KS3 uses municipalities instead of districts
+const MUN_ICONS = ['&#127757;','&#127754;','&#127968;','&#9968;','&#127807;','&#127749;','&#127751;','&#127750;','&#9973;','&#127806;','&#127796;','&#127969;','&#127820;','&#127758;','&#127793;','&#127956;','&#127810;'];
+const GRADES = ['7','8','9','10'];
+
+function aggMun(mun){
+  const schools=RAW[mun];
+  let en=0,as=0,not=0,low=0,np=0,p=0,hp=0;
+  for(const s of Object.values(schools)){
+    en+=s.enrolled;as+=s.assessed;
+    not+=s.proficiency['Not Proficient'];low+=s.proficiency['Low Proficient'];
+    np+=s.proficiency['Nearly Proficient'];p+=s.proficiency['Proficient'];hp+=s.proficiency['Highly Proficient'];
+  }
+  return {enrolled:en,assessed:as,'Not Proficient':not,'Low Proficient':low,'Nearly Proficient':np,'Proficient':p,'Highly Proficient':hp};
+}
+
+function divisionTotal(){
+  let en=0,as=0,not=0,low=0,np=0,p=0,hp=0;
+  for(const m of Object.keys(RAW)){const a=aggMun(m);en+=a.enrolled;as+=a.assessed;not+=a['Not Proficient'];low+=a['Low Proficient'];np+=a['Nearly Proficient'];p+=a['Proficient'];hp+=a['Highly Proficient'];}
+  return {enrolled:en,assessed:as,'Not Proficient':not,'Low Proficient':low,'Nearly Proficient':np,'Proficient':p,'Highly Proficient':hp};
+}
+
+function pct(n,d){return d>0?(n/d*100).toFixed(1)+'%':'0%';}
+function pctNum(n,d){return d>0?n/d*100:0;}
+function getBadgeColor(hp){if(hp>=30)return '#16A34A';if(hp>=15)return '#2563EB';if(hp>=5)return '#CA8A04';return '#DC2626';}
+
+// STATE
+let activeTab='municipality', selMun=null, selSchool=null, selGrade='All', searchQ='';
+let munNavLevel='Highly Proficient';
+let profNavExpanded=null, profNavScope='all';
+let rankMun='', rankMetric='hp_pct';
+
+// KPI
+function renderKPI(){
+  const div=divisionTotal();
+  const ns=Object.values(RAW).reduce((a,d)=>a+Object.keys(d).length,0);
+  const nm=Object.keys(RAW).length;
+  const kpis=[
+    {icon:'&#127983;',val:ns,lbl:'Total Schools',sub:nm+' Municipalities',color:'#1B3A6B'},
+    {icon:'&#128203;',val:div.enrolled.toLocaleString(),lbl:'Total Enrolled',sub:'Learners',color:'#2563EB'},
+    {icon:'&#9989;',val:div.assessed.toLocaleString(),lbl:'Total Assessed',sub:'Learners',color:'#0891B2'},
+    {icon:'&#11088;',val:pct(div['Highly Proficient'],div.assessed),lbl:'At Grade Level',sub:'Highly Proficient',color:'#16A34A'},
+    {icon:'&#9888;',val:pct(div['Not Proficient'],div.assessed),lbl:'Need Intervention',sub:'Not Proficient',color:'#DC2626'},
+  ];
+  document.getElementById('kpiStrip').innerHTML=kpis.map(k=>`<div class="kpi-card" style="border-top-color:${k.color}"><div class="kpi-icon">${k.icon}</div><div class="kpi-val" style="color:${k.color}">${k.val}</div><div class="kpi-lbl">${k.lbl}<br><span style="color:#94A3B8;font-size:.65rem">${k.sub}</span></div></div>`).join('');
+}
+
+// TABS
+function switchTab(tab){
+  activeTab=tab;
+  if(tab!=='rankings'){selMun=null;selSchool=null;searchQ='';}
+  document.querySelectorAll('.nav-tab').forEach((b,i)=>{b.classList.toggle('active',['municipality','school','proficiency','rankings'][i]===tab);});
+  renderNav();renderDetail();
+}
+
+function renderNav(){
+  const nb=document.getElementById('navBody');
+  if(activeTab==='municipality') renderMunNav(nb);
+  else if(activeTab==='school') renderSchoolNav(nb);
+  else if(activeTab==='proficiency') renderProficiencyNav(nb);
+  else renderRankingsNav(nb);
+}
+
+// MUNICIPALITY NAV
+function renderMunNav(nb){
+  const muns=Object.keys(RAW);
+  const levelPicker=LEVELS.map(l=>`<span onclick="event.stopPropagation();munNavLevel='${l}';renderMunNav(document.getElementById('navBody'));" title="${l}" style="cursor:pointer;font-size:1.05rem;padding:3px 4px;border-radius:6px;transition:background .12s;${munNavLevel===l?'background:#E0E7FF;':'opacity:.45;'}">${LEVEL_ICONS[l]}</span>`).join('');
+  nb.innerHTML=`<div style="padding:10px 4px 6px"><div class="search-wrap"><span class="s-icon">&#128269;</span><input placeholder="Search municipality..." oninput="searchQ=this.value;renderMunNav(document.getElementById('navBody'))" value="${searchQ}"></div><div style="display:flex;align-items:center;gap:4px;padding:2px 2px 6px;flex-wrap:wrap;"><span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-right:2px;">View:</span>${levelPicker}</div></div>`;
+  const filtered=muns.filter(m=>m.toLowerCase().includes(searchQ.toLowerCase()));
+  filtered.forEach((m,i)=>{
+    const a=aggMun(m);
+    const lvlCount=a[munNavLevel]||0;
+    const lvlPct=pctNum(lvlCount,a.assessed);
+    const lvlColor=LEVEL_COLORS[munNavLevel];
+    const icon=MUN_ICONS[i%MUN_ICONS.length];
+    const sc=Object.keys(RAW[m]).length;
+    const el=document.createElement('div');
+    el.className='list-item'+(selMun===m?' active':'');
+    el.innerHTML=`<div class="list-icon">${icon}</div><div style="flex:1;min-width:0"><div class="list-name">${m}</div><div class="list-sub">${sc} school${sc>1?'s':''} &nbsp;&middot;&nbsp; ${a.assessed.toLocaleString()} assessed</div><div style="display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;">${LEVELS.map(l=>`<span style="font-size:.62rem;font-weight:700;color:${LEVEL_COLORS[l]};background:${LEVEL_COLORS[l]}18;border-radius:4px;padding:1px 5px;">${LEVEL_ICONS[l]} ${pctNum(a[l]||0,a.assessed).toFixed(0)}%</span>`).join('')}</div><div class="mini-bar-wrap" style="margin-top:5px;"><div class="mini-bar" style="width:${lvlPct}%;background:${lvlColor}"></div></div></div><span class="list-badge" style="background:${lvlColor}">${lvlPct.toFixed(0)}%</span>`;
+    el.onclick=()=>{selMun=m;selSchool=null;renderNav();renderDetail();};
+    nb.appendChild(el);
+  });
+}
+
+// SCHOOL NAV
+function renderSchoolNav(nb){
+  nb.innerHTML=`<div style="padding:10px 4px 6px"><div class="search-wrap"><span class="s-icon">&#128269;</span><input placeholder="Search school..." oninput="searchQ=this.value;renderSchoolNav(document.getElementById('navBody'))" value="${searchQ}" autofocus></div></div>`;
+  if(searchQ.length<2){nb.innerHTML+=`<div class="placeholder"><div class="ph-icon">&#128269;</div><p>Type at least 2 characters to search</p></div>`;return;}
+  const q=searchQ.toLowerCase();let count=0;
+  for(const [mun,schools] of Object.entries(RAW)){for(const [sn,sd] of Object.entries(schools)){
+    if(!sn.toLowerCase().includes(q)&&!mun.toLowerCase().includes(q)) continue;
+    count++;
+    const hp=pctNum(sd.proficiency['Highly Proficient'],sd.assessed);
+    const el=document.createElement('div');
+    el.className='list-item'+(selSchool===sn?' active':'');
+    el.innerHTML=`<div class="list-icon">&#127983;</div><div style="flex:1;min-width:0"><div class="list-name">${sn}</div><div class="list-sub">${mun}</div><div class="mini-bar-wrap"><div class="mini-bar bg-hp" style="width:${hp}%"></div></div></div><span class="list-badge" style="background:${getBadgeColor(hp)}">${hp.toFixed(0)}%</span>`;
+    el.onclick=()=>{selMun=mun;selSchool=sn;switchTab('municipality');renderDetail();};
+    nb.appendChild(el);
+  }}
+  if(!count) nb.innerHTML+=`<div class="placeholder"><div class="ph-icon">&#128268;</div><p>No schools match "${searchQ}"</p></div>`;
+}
+
+// PROFICIENCY NAV
+function renderProficiencyNav(nb){
+  const div=divisionTotal();
+  const munList=Object.keys(RAW);
+  nb.innerHTML='';
+  const scopeRow=document.createElement('div');
+  scopeRow.style.cssText='padding:10px 4px 8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+  scopeRow.innerHTML=`<span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Scope:</span><span onclick="profNavScope='all';renderProficiencyNav(document.getElementById('navBody'));" style="cursor:pointer;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;background:${profNavScope==='all'?'var(--navy)':'#EEF2FF'};color:${profNavScope==='all'?'#fff':'var(--muted)'};border:1.5px solid ${profNavScope==='all'?'var(--navy)':'#C7D2FE'}">All</span>${munList.map(m=>`<span onclick="profNavScope='${m}';renderProficiencyNav(document.getElementById('navBody'));" style="cursor:pointer;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;background:${profNavScope===m?'var(--navy)':'#EEF2FF'};color:${profNavScope===m?'#fff':'var(--muted)'};border:1.5px solid ${profNavScope===m?'var(--navy)':'#C7D2FE'}">${m}</span>`).join('')}`;
+  nb.appendChild(scopeRow);
+  LEVELS.forEach(level=>{
+    const scopeData=profNavScope==='all'?div:aggMun(profNavScope);
+    const cnt=scopeData[level]||0;
+    const p=pctNum(cnt,scopeData.assessed);
+    const color=LEVEL_COLORS[level];
+    const el=document.createElement('div');
+    el.className='list-item'+(profNavExpanded===level?' active':'');
+    el.innerHTML=`<div class="list-icon" style="font-size:1.5rem">${LEVEL_ICONS[level]}</div><div style="flex:1;min-width:0"><div class="list-name" style="color:${color}">${level}</div><div class="list-sub">${cnt.toLocaleString()} learners &nbsp;&middot;&nbsp; ${p.toFixed(1)}% of assessed</div><div class="mini-bar-wrap"><div class="mini-bar" style="width:${p}%;background:${color}"></div></div></div>`;
+    el.onclick=()=>{profNavExpanded=profNavExpanded===level?null:level;renderProficiencyDetail(level,profNavScope==='all'?null:profNavScope);renderNav();};
+    nb.appendChild(el);
+  });
+}
+
+// RANKINGS NAV
+function renderRankingsNav(nb){
+  const munList=Object.keys(RAW);
+  nb.innerHTML=`<div style="padding:12px 4px 8px"><div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Sort By</div><select class="rank-select" style="width:100%;margin-bottom:10px" onchange="rankMetric=this.value;renderRankingsDetail();"><option value="hp_pct"${rankMetric==='hp_pct'?' selected':''}>% Highly Proficient</option><option value="hp"${rankMetric==='hp'?' selected':''}>No. Highly Proficient</option><option value="not_pct"${rankMetric==='not_pct'?' selected':''}>% Not Proficient</option><option value="need_pct"${rankMetric==='need_pct'?' selected':''}>% Need Support (Not+Low)</option><option value="assessed"${rankMetric==='assessed'?' selected':''}>Total Assessed</option></select><div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Municipality Filter</div><select class="rank-select" style="width:100%;margin-bottom:10px" onchange="rankMun=this.value;renderRankingsDetail();"><option value="">All Municipalities</option>${munList.map(m=>`<option value="${m}"${rankMun===m?' selected':''}>${m}</option>`).join('')}</select></div>`;
+  const el=document.createElement('div');
+  el.className='list-item active';
+  el.innerHTML=`<div class="list-icon">&#127942;</div><div><div class="list-name">School Rankings</div><div class="list-sub">${rankMun||'All Municipalities'}</div></div>`;
+  el.onclick=()=>renderRankingsDetail();
+  nb.appendChild(el);
+  renderRankingsDetail();
+}
+
+// DETAIL RENDERER
+function renderDetail(){
+  if(activeTab==='municipality') renderMunDetail();
+  else if(activeTab==='school') renderSchoolNav(document.getElementById('navBody'));
+  else if(activeTab==='proficiency') renderProficiencyNav(document.getElementById('navBody'));
+  else renderRankingsDetail();
+}
+
+function renderDonut(data, assessed, canvasId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const cx=60,cy=60,r=50,iR=34;
+  ctx.clearRect(0,0,120,120);
+  let startAngle=-Math.PI/2;
+  LEVELS.forEach(l=>{
+    const val=data[l]||0;
+    const slice=(val/assessed)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,startAngle,startAngle+slice);ctx.closePath();
+    ctx.fillStyle=LEVEL_COLORS[l];ctx.fill();
+    startAngle+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,iR,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+
+// MUNICIPALITY DETAIL
+function renderMunDetail(){
+  if(!selMun){
+    renderDivisionOverview();
+    return;
+  }
+  if(selSchool){
+    renderSchoolDetail();
+    return;
+  }
+  const a=aggMun(selMun);
+  const schools=RAW[selMun];
+  const sc=Object.keys(schools).length;
+  document.getElementById('detailTitle').textContent='&#127968; '+selMun+' Municipality';
+  document.getElementById('detailSub').textContent=sc+' schools · '+a.assessed.toLocaleString()+' assessed · KS3 (Grades 7–10)';
+  const hp=pctNum(a['Highly Proficient'],a.assessed);
+  const np=pctNum(a['Not Proficient'],a.assessed);
+  const part=a.assessed>0?(a.assessed/a.enrolled*100).toFixed(1)+'%':'N/A';
+  document.getElementById('detailBody').innerHTML=`
+  <div class="stats-row">
+    <div class="stat-box"><div class="sv" style="color:#1B3A6B">${sc}</div><div class="sl">Schools</div></div>
+    <div class="stat-box"><div class="sv" style="color:#2563EB">${a.enrolled.toLocaleString()}</div><div class="sl">Enrolled</div></div>
+    <div class="stat-box"><div class="sv" style="color:#0891B2">${a.assessed.toLocaleString()}</div><div class="sl">Assessed</div></div>
+    <div class="stat-box"><div class="sv" style="color:#64748B">${part}</div><div class="sl">Participation</div></div>
+  </div>
+  <div class="donut-row">
+    <div class="donut-wrap"><canvas id="munDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:${getBadgeColor(hp)}">${hp.toFixed(1)}%</div><div class="dc-lbl">At Grade</div></div></div>
+    <div class="legend-list">${LEVELS.slice().reverse().map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${l}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${a[l].toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctNum(a[l],a.assessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+  </div>
+  <p class="summary-section-title">&#127983; Schools in ${selMun}</p>
+  <table class="prof-table">
+    <thead><tr><th>School</th><th style="text-align:right">Assessed</th><th>At Grade Level (HP%)</th><th>Need Support (NP%)</th></tr></thead>
+    <tbody>${Object.entries(schools).sort((a,b)=>pctNum(b[1].proficiency['Highly Proficient'],b[1].assessed)-pctNum(a[1].proficiency['Highly Proficient'],a[1].assessed)).map(([sn,sd])=>{
+      const shp=pctNum(sd.proficiency['Highly Proficient'],sd.assessed);
+      const snp=pctNum(sd.proficiency['Not Proficient'],sd.assessed);
+      return `<tr onclick="selSchool='${sn.replace(/'/g,"\\'")}';renderDetail();" style="cursor:pointer"><td><b>${sn}</b></td><td class="count-text">${sd.assessed}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${shp}%;background:#16A34A"></div></div><span class="pct-text" style="color:${getBadgeColor(shp)}">${shp.toFixed(1)}%</span></div></td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${snp}%;background:#DC2626"></div></div><span class="pct-text" style="color:#DC2626">${snp.toFixed(1)}%</span></div></td></tr>`;
+    }).join('')}</tbody>
+  </table>`;
+  setTimeout(()=>renderDonut(a,a.assessed,'munDonut'),50);
+}
+
+// SCHOOL DETAIL
+function renderSchoolDetail(){
+  const sd=RAW[selMun][selSchool];
+  if(!sd){renderDivisionOverview();return;}
+  document.getElementById('detailTitle').textContent='&#127983; '+selSchool;
+  document.getElementById('detailSub').textContent=selMun+' · KS3 (Grades 7–10) · '+sd.assessed.toLocaleString()+' assessed';
+  const hp=pctNum(sd.proficiency['Highly Proficient'],sd.assessed);
+  const np=pctNum(sd.proficiency['Not Proficient'],sd.assessed);
+  const part=sd.assessed>0?(sd.assessed/sd.enrolled*100).toFixed(1)+'%':'N/A';
+  // build grade tabs
+  const activeGrade=selGrade||'All';
+  const gradeTabsHtml=`<div class="grade-tabs"><button class="grade-tab${activeGrade==='All'?' active':''}" onclick="selGrade='All';renderSchoolDetail();">All Grades</button>${GRADES.filter(g=>sd.grades[g]&&sd.grades[g].assessed>0).map(g=>`<button class="grade-tab${activeGrade===g?' active':''}" onclick="selGrade='${g}';renderSchoolDetail();">Grade ${g}</button>`).join('')}</div>`;
+  const gradeData=activeGrade==='All'?sd.proficiency:sd.grades[activeGrade];
+  const gradeAssessed=activeGrade==='All'?sd.assessed:(sd.grades[activeGrade]?sd.grades[activeGrade].assessed:0);
+  const shp=pctNum(gradeData['Highly Proficient'],gradeAssessed);
+  document.getElementById('detailBody').innerHTML=`
+  <button class="back-btn" onclick="selSchool=null;renderDetail();">&#8592; Back to ${selMun}</button>
+  <div class="stats-row">
+    <div class="stat-box"><div class="sv" style="color:#2563EB">${sd.enrolled.toLocaleString()}</div><div class="sl">Enrolled</div></div>
+    <div class="stat-box"><div class="sv" style="color:#0891B2">${sd.assessed.toLocaleString()}</div><div class="sl">Assessed</div></div>
+    <div class="stat-box"><div class="sv" style="color:${getBadgeColor(hp)}">${hp.toFixed(1)}%</div><div class="sl">At Grade (HP)</div></div>
+    <div class="stat-box"><div class="sv" style="color:#DC2626">${np.toFixed(1)}%</div><div class="sl">Not Proficient</div></div>
+  </div>
+  ${gradeTabsHtml}
+  <div class="donut-row">
+    <div class="donut-wrap"><canvas id="schoolDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:${getBadgeColor(shp)}">${shp.toFixed(1)}%</div><div class="dc-lbl">${activeGrade==='All'?'Overall':'Gr.'+activeGrade}</div></div></div>
+    <div class="legend-list">${LEVELS.slice().reverse().map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${l}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${(gradeData[l]||0).toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctNum(gradeData[l]||0,gradeAssessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+  </div>
+  ${activeGrade==='All'?`<div class="section-sep"></div><p class="summary-section-title">&#128202; By Grade Level</p><table class="prof-table"><thead><tr><th>Grade</th><th style="text-align:right">Assessed</th><th>HP%</th><th>NP%</th></tr></thead><tbody>${GRADES.filter(g=>sd.grades[g]&&sd.grades[g].assessed>0).map(g=>{const gd=sd.grades[g];const ghp=pctNum(gd['Highly Proficient'],gd.assessed);const gnp=pctNum(gd['Not Proficient'],gd.assessed);return `<tr onclick="selGrade='${g}';renderSchoolDetail();" style="cursor:pointer"><td><b>Grade ${g}</b></td><td class="count-text">${gd.assessed}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${ghp}%;background:#16A34A"></div></div><span class="pct-text" style="color:${getBadgeColor(ghp)}">${ghp.toFixed(1)}%</span></div></td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${gnp}%;background:#DC2626"></div></div><span class="pct-text" style="color:#DC2626">${gnp.toFixed(1)}%</span></div></td></tr>`;}).join('')}</tbody></table>`:
+  `<div class="section-sep"></div><p class="summary-section-title">&#128202; Grade ${activeGrade} — Proficiency Breakdown</p><table class="prof-table"><thead><tr><th>Proficiency Level</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead><tbody>${LEVELS.slice().reverse().map(l=>{const cnt=gradeData[l]||0;const p=pctNum(cnt,gradeAssessed);return `<tr><td><span class="prof-dot" style="background:${LEVEL_COLORS[l]}"></span><b>${l}</b></td><td class="count-text">${cnt}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:${LEVEL_COLORS[l]}"></div></div><span class="pct-text" style="color:${LEVEL_COLORS[l]}">${p.toFixed(1)}%</span></div></td></tr>`;}).join('')}</tbody></table>`}
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+  setTimeout(()=>renderDonut(gradeData,gradeAssessed,'schoolDonut'),50);
+}
+
+// DIVISION OVERVIEW
+function renderDivisionOverview(){
+  const div=divisionTotal();
+  const ns=Object.values(RAW).reduce((a,d)=>a+Object.keys(d).length,0);
+  const hp=pctNum(div['Highly Proficient'],div.assessed);
+  const np=pctNum(div['Not Proficient'],div.assessed);
+  document.getElementById('detailTitle').textContent='SDO Romblon — Division Overview';
+  document.getElementById('detailSub').textContent='KS3 (Grades 7–10) · 17 Municipalities · 58 Schools';
+  document.getElementById('detailBody').innerHTML=`
+  <div class="stats-row">
+    <div class="stat-box"><div class="sv" style="color:#1B3A6B">${ns}</div><div class="sl">Schools</div></div>
+    <div class="stat-box"><div class="sv" style="color:#2563EB">${div.enrolled.toLocaleString()}</div><div class="sl">Enrolled</div></div>
+    <div class="stat-box"><div class="sv" style="color:#0891B2">${div.assessed.toLocaleString()}</div><div class="sl">Assessed</div></div>
+    <div class="stat-box"><div class="sv" style="color:#64748B">${(div.assessed/div.enrolled*100).toFixed(1)}%</div><div class="sl">Participation</div></div>
+  </div>
+  <div class="donut-row">
+    <div class="donut-wrap"><canvas id="divDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:${getBadgeColor(hp)}">${hp.toFixed(1)}%</div><div class="dc-lbl">At Grade</div></div></div>
+    <div class="legend-list">${LEVELS.slice().reverse().map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${l}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${div[l].toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctNum(div[l],div.assessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+  </div>
+  <p class="summary-section-title">&#127968; Municipality Summary</p>
+  <table class="prof-table">
+    <thead><tr><th>Municipality</th><th style="text-align:right">Schools</th><th style="text-align:right">Assessed</th><th>HP% (At Grade)</th><th>NP% (Need Help)</th></tr></thead>
+    <tbody>${Object.keys(RAW).map(m=>{const a=aggMun(m);const mhp=pctNum(a['Highly Proficient'],a.assessed);const mnp=pctNum(a['Not Proficient'],a.assessed);const sc=Object.keys(RAW[m]).length;return `<tr onclick="selMun='${m}';switchTab('municipality');renderDetail();" style="cursor:pointer"><td><b>${m}</b></td><td class="count-text">${sc}</td><td class="count-text">${a.assessed.toLocaleString()}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${mhp}%;background:#16A34A"></div></div><span class="pct-text" style="color:${getBadgeColor(mhp)}">${mhp.toFixed(1)}%</span></div></td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${mnp}%;background:#DC2626"></div></div><span class="pct-text" style="color:#DC2626">${mnp.toFixed(1)}%</span></div></td></tr>`;}).join('')}</tbody>
+  </table>
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+  setTimeout(()=>renderDonut(div,div.assessed,'divDonut'),50);
+}
+
+// PROFICIENCY DETAIL
+function renderProficiencyDetail(level,filterMun){
+  const scopeLabel=filterMun?filterMun+' Municipality':'All Schools';
+  document.getElementById('detailTitle').textContent=LEVEL_ICONS[level]+' '+level+' — '+scopeLabel;
+  document.getElementById('detailSub').textContent='Schools ranked by count of '+level+' learners';
+  let rows=[];
+  for(const [mun,schools] of Object.entries(RAW)){
+    if(filterMun&&mun!==filterMun) continue;
+    for(const [sn,sd] of Object.entries(schools)){
+      rows.push({mun,sn,cnt:sd.proficiency[level],assessed:sd.assessed,pct_v:pctNum(sd.proficiency[level],sd.assessed)});
+    }
+  }
+  rows.sort((a,b)=>b.cnt-a.cnt);
+  let munSummary='';
+  if(!filterMun){
+    const munRows=Object.keys(RAW).map(m=>{const a=aggMun(m);const mCnt=a[level]||0;const mPct=pctNum(mCnt,a.assessed);return {m,mCnt,mPct};}).sort((a,b)=>b.mPct-a.mPct);
+    munSummary='<div class="section-sep"></div><p class="summary-section-title">&#128205; By Municipality</p><table class="prof-table"><thead><tr><th>Municipality</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead><tbody>'+munRows.map(({m,mCnt,mPct})=>`<tr onclick="renderProficiencyDetail('${level}','${m.replace(/'/g,"\\'")}');" style="cursor:pointer"><td><b>${m}</b></td><td class="count-text">${mCnt}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${mPct}%;background:${LEVEL_COLORS[level]}"></div></div><span class="pct-text" style="color:${LEVEL_COLORS[level]}">${mPct.toFixed(1)}%</span></div></td></tr>`).join('')+'</tbody></table>';
+  }
+  const backBtn=filterMun?`<button class="back-btn" onclick="renderProficiencyDetail('${level}')">&#8592; All Schools</button>`:'';
+  const munCol=filterMun?'':'<th>Municipality</th>';
+  const munCell=r=>filterMun?'':`<td style="font-size:.75rem;color:var(--muted)">${r.mun}</td>`;
+  document.getElementById('detailBody').innerHTML=backBtn+`<div style="background:#FFF7ED;border:1.5px solid ${LEVEL_COLORS[level]};border-radius:10px;padding:14px;margin-bottom:16px"><div style="font-weight:800;color:${LEVEL_COLORS[level]};font-size:.9rem">${LEVEL_ICONS[level]} ${level}${filterMun?' &middot; '+filterMun:''}</div><div style="font-size:.8rem;color:var(--muted);margin-top:4px">Total in scope: <b style="color:${LEVEL_COLORS[level]}">${rows.reduce((a,r)=>a+r.cnt,0).toLocaleString()} learners</b></div></div><table class="prof-table"><thead><tr><th>School</th>${munCol}<th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead><tbody>`+rows.filter(r=>r.cnt>0).map(r=>`<tr onclick="selMun='${r.mun.replace(/'/g,"\\'")}';selSchool='${r.sn.replace(/'/g,"\\'")}';switchTab('municipality');renderDetail();" style="cursor:pointer"><td><b>${r.sn}</b></td>${munCell(r)}<td class="count-text">${r.cnt}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${LEVEL_COLORS[level]}"></div></div><span class="pct-text" style="color:${LEVEL_COLORS[level]}">${r.pct_v.toFixed(1)}%</span></div></td></tr>`).join('')+'</tbody></table>'+munSummary;
+}
+
+// RANKINGS DETAIL
+function getAllSchools(){
+  const all=[];
+  for(const [mun,schools] of Object.entries(RAW)){for(const [sn,sd] of Object.entries(schools)){
+    const hp=sd.proficiency['Highly Proficient'],not_p=sd.proficiency['Not Proficient'],low_p=sd.proficiency['Low Proficient'],as=sd.assessed;
+    all.push({municipality:mun,school:sn,enrolled:sd.enrolled,assessed:as,hp,not_p,low_p,hp_pct:pctNum(hp,as),not_pct:pctNum(not_p,as),need_pct:pctNum(not_p+low_p,as),need:not_p+low_p});
+  }}
+  return all;
+}
+
+function renderRankingsDetail(){
+  document.getElementById('detailTitle').textContent='&#127942; School Rankings';
+  document.getElementById('detailSub').textContent=rankMun?rankMun+' Municipality':'All 17 Municipalities · KS3 (Grades 7–10)';
+  let pool=getAllSchools();
+  if(rankMun) pool=pool.filter(r=>r.municipality===rankMun);
+  const metricLabels={hp_pct:'% Highly Proficient',hp:'No. Highly Proficient',not_pct:'% Not Proficient',need_pct:'% Need Support (Not+Low)',assessed:'Total Assessed'};
+  const metricFmt=(r,m)=>m==='hp_pct'?r.hp_pct.toFixed(1)+'%':m==='not_pct'?r.not_pct.toFixed(1)+'%':m==='need_pct'?r.need_pct.toFixed(1)+'%':m==='hp'?r.hp.toLocaleString():r.assessed.toLocaleString();
+  const metricColor=(r,m)=>(m==='hp_pct'||m==='hp')?getBadgeColor(r.hp_pct):r.not_pct>=60?'#DC2626':r.not_pct>=40?'#EA580C':'#CA8A04';
+  const neg=rankMetric==='not_pct'||rankMetric==='need_pct';
+  const top10=[...pool].sort((a,b)=>neg?a[rankMetric]-b[rankMetric]:b[rankMetric]-a[rankMetric]).slice(0,10);
+  const bot10=[...pool].sort((a,b)=>neg?b[rankMetric]-a[rankMetric]:a[rankMetric]-b[rankMetric]).slice(0,10);
+  const topLabel=neg?'&#9989; Best (Lowest '+metricLabels[rankMetric]+')':'&#127942; Top 10 — '+metricLabels[rankMetric];
+  const botLabel=neg?'&#9888;&#65039; Most Need Support':'&#9888;&#65039; Bottom 10 — Need Support';
+  const rankRow=(r,i)=>{const rnum=i===0?'rank-gold':i===1?'rank-silver':i===2?'rank-bronze':'rank-other';const col=metricColor(r,rankMetric);return `<tr onclick="selMun='${r.municipality.replace(/'/g,"\\'")}';selSchool='${r.school.replace(/'/g,"\\'")}';switchTab('municipality');renderDetail();" style="cursor:pointer"><td><span class="rank-num ${rnum}">${i+1}</span></td><td><b>${r.school}</b><div style="font-size:.7rem;color:var(--muted);margin-top:1px">${r.municipality}</div></td><td style="text-align:right"><b style="color:${col};font-size:.88rem;">${metricFmt(r,rankMetric)}</b><div style="font-size:.68rem;color:var(--muted)">${r.assessed} assessed</div></td></tr>`;};
+  const munData=Object.keys(RAW).map(m=>{const a=aggMun(m);const hp_pct=pctNum(a['Highly Proficient'],a.assessed);const not_pct=pctNum(a['Not Proficient'],a.assessed);const need_pct=pctNum(a['Not Proficient']+a['Low Proficient'],a.assessed);const val=rankMetric==='hp_pct'?hp_pct:rankMetric==='hp'?a['Highly Proficient']:rankMetric==='not_pct'?not_pct:rankMetric==='need_pct'?need_pct:a.assessed;return {m,val,assessed:a.assessed,sc:Object.keys(RAW[m]).length,hp_pct};}).sort((a,b)=>neg?a.val-b.val:b.val-a.val);
+  document.getElementById('detailBody').innerHTML=`<div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;"><div><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Sorted By</div><div style="font-weight:800;color:var(--navy);font-size:.9rem;">&#128202; ${metricLabels[rankMetric]}</div></div><div style="border-left:1px solid #BBF7D0;padding-left:16px;"><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Schools in Pool</div><div style="font-weight:800;color:var(--navy);font-size:.9rem;">&#127983; ${pool.length} schools</div></div><div style="border-left:1px solid #BBF7D0;padding-left:16px;"><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Scope</div><div style="font-weight:800;color:var(--navy);font-size:.9rem;">&#128205; ${rankMun||'All Municipalities'}</div></div></div><div class="rankings-grid"><div class="rank-card"><div class="rank-head top">${topLabel}</div><table class="rank-table"><thead><tr><th>#</th><th>School</th><th style="text-align:right">${metricLabels[rankMetric]}</th></tr></thead><tbody>${top10.map((r,i)=>rankRow(r,i)).join('')}</tbody></table></div><div class="rank-card"><div class="rank-head bot">&#9888;&#65039; ${botLabel}</div><table class="rank-table"><thead><tr><th>#</th><th>School</th><th style="text-align:right">${metricLabels[rankMetric]}</th></tr></thead><tbody>${bot10.map((r,i)=>rankRow(r,i)).join('')}</tbody></table></div></div><div class="section-sep"></div><p class="summary-section-title">&#128205; Municipality Averages — ${metricLabels[rankMetric]}</p><table class="prof-table"><thead><tr><th>Rank</th><th>Municipality</th><th style="text-align:right">Schools</th><th style="text-align:right">Assessed</th><th>${metricLabels[rankMetric]}</th></tr></thead><tbody>${munData.map(({m,val,assessed,sc,hp_pct},i)=>{const rnum=i===0?'rank-gold':i===1?'rank-silver':i===2?'rank-bronze':'rank-other';const fmtVal=rankMetric.includes('pct')?val.toFixed(1)+'%':Math.round(val).toLocaleString();const col=getBadgeColor(hp_pct);return `<tr onclick="selMun='${m.replace(/'/g,"\\'")}';switchTab('municipality');renderDetail();" style="cursor:pointer"><td><span class="rank-num ${rnum}">${i+1}</span></td><td><b>${m}</b></td><td class="count-text">${sc}</td><td class="count-text">${assessed.toLocaleString()}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100,val)}%;background:${col}"></div></div><span class="pct-text" style="color:${col}">${fmtVal}</span></div></td></tr>`;}).join('')}</tbody></table><div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+}
+
+// INIT
+renderKPI();renderNav();renderDivisionOverview();
+</script>
+</body>
+</html>

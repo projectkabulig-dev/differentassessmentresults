@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive Dashboards — SDO Romblon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f9;--surface:#ffffffcc;--solid:#fff;--ink:#0e2238;--mut:#5d7186;--line:#dbe5ef;
+  --math:#2563eb;--sci:#0d9488;--lit:#c2410c;--num:#7c3aed;--shadow:0 10px 30px -12px #0b2a5a40;
+}
+[data-theme=dark]{
+  --bg:#0a1626;--surface:#13243acc;--solid:#13243a;--ink:#e8f0fa;--mut:#93a9c0;--line:#223a57;--shadow:0 10px 30px -12px #000a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);transition:background .3s,color .3s}
+.hero{position:relative;overflow:hidden;color:#fff;padding:64px 20px 110px;text-align:center;
+  background:radial-gradient(900px 400px at 15% -10%,#38bdf8aa,transparent 60%),radial-gradient(700px 400px at 90% 0,#a78bfa88,transparent 60%),linear-gradient(135deg,#0b2447,#13478f 55%,#0d9488)}
+.hero::after{content:"";position:absolute;inset:0;background-image:radial-gradient(#ffffff22 1px,transparent 1px);background-size:26px 26px;mask-image:linear-gradient(#000,transparent 85%)}
+.hero>*{position:relative;z-index:1}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border:1px solid #ffffff55;border-radius:99px;background:#ffffff1f;backdrop-filter:blur(8px);font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+h1{font-family:Fraunces,serif;font-weight:800;font-size:clamp(2rem,5.5vw,3.4rem);margin:18px 0 10px;line-height:1.1}
+.hero p{margin:0 auto;max-width:620px;opacity:.92;font-size:1.02rem}
+.stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:26px}
+.stat{background:#ffffff1f;border:1px solid #ffffff40;backdrop-filter:blur(10px);border-radius:14px;padding:10px 20px}
+.stat b{display:block;font-size:1.5rem}.stat span{font-size:.75rem;opacity:.85;text-transform:uppercase;letter-spacing:.06em}
+.theme{position:fixed;top:14px;right:14px;z-index:5;border:1px solid #ffffff55;background:#ffffff26;backdrop-filter:blur(10px);color:#fff;border-radius:99px;padding:9px 14px;cursor:pointer;font:600 .8rem inherit;font-family:inherit}
+main{max-width:1080px;margin:-64px auto 50px;padding:0 18px;position:relative;z-index:2}
+.panel{background:var(--surface);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:26px}
+.panel h2{margin:0 0 18px;font-family:Fraunces,serif;font-size:1.35rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;background:var(--solid);border:1px solid var(--line);border-radius:16px;padding:16px 16px 16px 58px;position:relative;font-size:.9rem;line-height:1.5;color:var(--mut)}
+.steps li::before{content:counter(s);position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:800;background:linear-gradient(135deg,#2563eb,#0d9488)}
+.steps b{color:var(--ink)}
+.search{margin:30px 0 6px;position:relative}
+.search input{width:100%;padding:15px 18px 15px 46px;border-radius:16px;border:1px solid var(--line);background:var(--solid);color:var(--ink);font:500 1rem inherit;font-family:inherit;outline:none;box-shadow:var(--shadow)}
+.search input:focus{border-color:var(--math);box-shadow:0 0 0 4px #2563eb2a}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:20px;color:var(--mut)}
+.group{margin-top:30px}
+.group h3{display:flex;align-items:center;gap:10px;margin:0 4px 14px;font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;color:var(--mut)}
+.group h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+a.card{--c:var(--math);position:relative;display:flex;gap:16px;align-items:flex-start;text-decoration:none;color:inherit;background:var(--solid);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow);overflow:hidden;
+  transition:transform .25s,box-shadow .25s,border-color .25s;opacity:0;animation:up .55s forwards}
+a.card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
+a.card:hover{transform:translateY(-6px);border-color:var(--c);box-shadow:0 18px 38px -14px var(--c)}
+.ico{flex:none;width:52px;height:52px;border-radius:15px;display:grid;place-items:center;color:#fff;background:var(--c)}
+.ico svg{width:26px;height:26px}
+a.card strong{display:block;font-size:1.02rem;margin-bottom:4px}
+a.card span{display:block;font-size:.85rem;color:var(--mut);line-height:1.45}
+.go{margin-top:12px;font-size:.8rem;font-weight:700;color:var(--c)}
+.math{--c:var(--math)}.sci{--c:var(--sci)}.lit{--c:var(--lit)}.num{--c:var(--num)}
+.empty{display:none;text-align:center;color:var(--mut);padding:40px 0}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+footer{text-align:center;color:var(--mut);font-size:.82rem;padding:0 16px 34px}
+@media(prefers-reduced-motion:reduce){a.card{animation:none;opacity:1}}
+</style>
+</head>
+<body>
+<button class="theme" id="theme" aria-label="Toggle dark mode">🌙 Dark mode</button>
+
+<header class="hero">
+  <span class="badge">Project KABULIG · SDO Romblon</span>
+  <h1>Interactive Dashboards</h1>
+  <p>Curriculum Implementation Division — mga resulta ng assessment ng buong Division, District, at School sa iisang lugar.</p>
+  <div class="stats">
+    <div class="stat"><b>8</b><span>Dashboards</span></div>
+    <div class="stat"><b>3</b><span>Kategorya</span></div>
+    <div class="stat"><b>2026</b><span>School Year</span></div>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="how">
+    <h2>📘 Paano gamitin</h2>
+    <ol class="steps">
+      <li><b>Pumili</b> ng dashboard sa ibaba o gamitin ang search box.</li>
+      <li><b>I-click</b> ang card. Magbubukas ito sa bagong tab.</li>
+      <li><b>Mag-filter</b> gamit ang mga dropdown at tab para makita ang resulta ng division, district, at school.</li>
+      <li><b>I-hover</b> ang mga chart para makita ang eksaktong numero.</li>
+      <li><b>Online</b> dapat ang device para lumabas ang mga chart at font.</li>
+    </ol>
+  </section>
+
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Maghanap: RMA, Math, Science, Literacy, Numeracy…" autocomplete="off">
+  </div>
+
+  <section class="group">
+    <h3>Result of Mapping Assessment (RMA)</h3>
+    <div class="grid">
+      <a class="card math" href="RMA_KS1_Interactive_Dashboard.html" target="_blank" rel="noopener" data-k="rma ks1 key stage 1 end of school year">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <div><strong>RMA — Key Stage 1</strong><span>End-of-School-Year RMA ng Key Stage 1</span><div class="go">Buksan →</div></div></a>
+      <a class="card math" href="RMA_KS2_Interactive_Dashboard.html" target="_blank" rel="noopener" data-k="rma ks2 key stage 2 end of school year">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <div><strong>RMA — Key Stage 2</strong><span>End-of-School-Year RMA ng Key Stage 2</span><div class="go">Buksan →</div></div></a>
+      <a class="card math" href="RMA_KS3_Interactive_Dashboard.html" target="_blank" rel="noopener" data-k="rma ks3 key stage 3 end of school year">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+        <div><strong>RMA — Key Stage 3</strong><span>End-of-School-Year RMA ng Key Stage 3</span><div class="go">Buksan →</div></div></a>
+    </div>
+  </section>
+
+  <section class="group">
+    <h3>Senior High School Assessment</h3>
+    <div class="grid">
+      <a class="card num" href="2026_SHS_Numeracy_Interactive_Dashboardv2.html" target="_blank" rel="noopener" data-k="shs senior high numeracy math 2026">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5v14"/><rect x="2.5" y="2.5" width="19" height="19" rx="4"/></svg></div>
+        <div><strong>SHS Numeracy</strong><span>2026 SHS Numeracy Assessment Dashboard</span><div class="go">Buksan →</div></div></a>
+      <a class="card lit" href="2026_SHS_Literacy_Interactive_Dashboardv2.html" target="_blank" rel="noopener" data-k="shs senior high literacy reading 2026">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8h6"/></svg></div>
+        <div><strong>SHS Literacy</strong><span>2026 SHS Literacy Assessment Dashboard</span><div class="go">Buksan →</div></div></a>
+    </div>
+  </section>
+
+  <section class="group">
+    <h3>Grade 10 Computer-Based Mastery Assessment</h3>
+    <div class="grid">
+      <a class="card math" href="2026_Computer-Based_Assessment_Math_Dashboard.html" target="_blank" rel="noopener" data-k="grade 10 math mastery computer based 2026">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 5H7l6 7-6 7h11"/></svg></div>
+        <div><strong>Grade 10 Math</strong><span>2026 Math Mastery Assessment Dashboard</span><div class="go">Buksan →</div></div></a>
+      <a class="card sci" href="2026_Computer-Based_Assessment_Science_Dashboard.html" target="_blank" rel="noopener" data-k="grade 10 science mastery computer based 2026">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7.5 15h9"/></svg></div>
+        <div><strong>Grade 10 Science</strong><span>2026 Science Mastery Assessment Dashboard</span><div class="go">Buksan →</div></div></a>
+      <a class="card math" href="Competency-Based_Mastery_Test_Math.html" target="_blank" rel="noopener" data-k="competency based mastery test math grade 10">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></svg></div>
+        <div><strong>Competency-Based Mastery Test</strong><span>Grade 10 Computer-Based Mastery Assessment — Mathematics</span><div class="go">Buksan →</div></div></a>
+    </div>
+  </section>
+
+  <div class="empty" id="empty">Walang nahanap. Subukan ang ibang salita.</div>
+</main>
+<footer>Schools Division Office of Romblon · Curriculum Implementation Division · Project KABULIG</footer>
+
+<script>
+(function(){
+  var root=document.documentElement,btn=document.getElementById('theme');
+  function set(t){root.setAttribute('data-theme',t);btn.textContent=t==='dark'?'☀️ Light mode':'🌙 Dark mode';}
+  try{var s=localStorage.getItem('theme');if(s)set(s);else if(matchMedia('(prefers-color-scheme: dark)').matches)set('dark');}catch(e){}
+  btn.onclick=function(){var t=root.getAttribute('data-theme')==='dark'?'light':'dark';set(t);try{localStorage.setItem('theme',t)}catch(e){}};
+  var cards=[].slice.call(document.querySelectorAll('a.card'));
+  cards.forEach(function(c,i){c.style.animationDelay=(i*60)+'ms'});
+  var q=document.getElementById('q'),empty=document.getElementById('empty');
+  q.addEventListener('input',function(){
+    var v=q.value.trim().toLowerCase(),n=0;
+    cards.forEach(function(c){
+      var hit=!v||(c.textContent+' '+c.dataset.k).toLowerCase().indexOf(v)>-1;
+      c.style.display=hit?'':'none';if(hit)n++;
+    });
+    document.querySelectorAll('.group').forEach(function(g){
+      g.style.display=[].some.call(g.querySelectorAll('a.card'),function(c){return c.style.display!=='none'})?'':'none';
+    });
+    empty.style.display=n?'none':'block';
+  });
+})();
+</script>
+</body>
+</html>

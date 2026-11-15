@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHS Literacy Assessment Dashboard — Division of Romblon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Raleway:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+  :root{
+    --navy:#1B3A6B;--blue:#2563EB;--teal:#0891B2;--green:#16A34A;
+    --yellow:#CA8A04;--orange:#EA580C;--red:#DC2626;--purple:#7C3AED;
+    --bg:#F0F4FF;--card:#FFFFFF;--border:#D1D5DB;--text:#1E293B;--muted:#64748B;
+    --fru:#DC2626;--ins:#CA8A04;--ind:#16A34A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  header{background:linear-gradient(135deg,#4C1D95 0%,#7C3AED 60%,#2563EB 100%);color:#fff;padding:20px 32px 16px;display:flex;align-items:center;gap:18px;box-shadow:0 4px 20px rgba(76,29,149,.4);}
+  .header-icon{font-size:2.6rem;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));}
+  .header-text h1{font-family:'Raleway',sans-serif;font-size:1.35rem;font-weight:900;letter-spacing:.5px;}
+  .header-text p{font-size:.78rem;opacity:.8;margin-top:2px;}
+  .header-badge{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 14px;font-size:.75rem;font-weight:700;text-align:center;}
+  .shell{max-width:1340px;margin:0 auto;padding:24px 20px;}
+  .kpi-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin-bottom:22px;}
+  .kpi-card{background:var(--card);border-radius:14px;padding:18px 16px 14px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-top:4px solid;transition:transform .15s,box-shadow .15s;}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .kpi-icon{font-size:1.6rem;margin-bottom:6px;}
+  .kpi-val{font-family:'Raleway',sans-serif;font-size:1.75rem;font-weight:900;line-height:1;}
+  .kpi-lbl{font-size:.7rem;color:var(--muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .main-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+  .panel{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;}
+  .panel-head{background:var(--navy);color:#fff;padding:13px 18px;font-size:.82rem;font-weight:800;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.6px;}
+  .panel-body{padding:14px;overflow-y:auto;max-height:70vh;}
+  .nav-tabs{display:flex;gap:0;background:#EEF2FF;border-bottom:2px solid #C7D2FE;}
+  .nav-tab{flex:1;padding:9px 4px;text-align:center;font-size:.68rem;font-weight:700;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.3px;}
+  .nav-tab.active{color:var(--navy);background:#fff;border-bottom:2px solid var(--navy);margin-bottom:-2px;}
+  .nav-tab:hover:not(.active){background:#E0E7FF;color:var(--navy);}
+  .list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;margin-bottom:5px;transition:background .12s,transform .1s;border:1.5px solid transparent;}
+  .list-item:hover{background:#EEF2FF;transform:translateX(2px);border-color:#C7D2FE;}
+  .list-item.active{background:#EEF2FF;border-color:var(--navy);}
+  .list-icon{font-size:1.3rem;flex-shrink:0;}
+  .list-name{font-weight:700;font-size:.82rem;flex:1;}
+  .list-sub{font-size:.7rem;color:var(--muted);}
+  .list-badge{font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:20px;color:#fff;flex-shrink:0;}
+  .mini-bar-wrap{height:5px;background:#E2E8F0;border-radius:3px;margin-top:3px;overflow:hidden;width:100%;}
+  .mini-bar{height:100%;border-radius:3px;transition:width .4s ease;}
+  .right-panel{display:flex;flex-direction:column;gap:18px;}
+  .detail-card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;}
+  .detail-head{padding:18px 22px;background:linear-gradient(135deg,#4C1D95,#7C3AED);color:#fff;}
+  .detail-head h2{font-family:'Raleway',sans-serif;font-size:1.15rem;font-weight:900;}
+  .detail-head p{font-size:.78rem;opacity:.8;margin-top:3px;}
+  .detail-body{padding:20px 22px;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-box{background:#F8FAFF;border-radius:10px;padding:12px 14px;text-align:center;border:1.5px solid #E0E7FF;}
+  .stat-box .sv{font-size:1.5rem;font-weight:900;font-family:'Raleway',sans-serif;}
+  .stat-box .sl{font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-top:2px;}
+  .prof-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  .prof-table th{background:var(--navy);color:#fff;padding:8px 12px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;}
+  .prof-table td{padding:8px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+  .prof-table tr:last-child td{border-bottom:none;}
+  .prof-table tr:hover td{background:#F8FAFF;}
+  .bar-cell{display:flex;align-items:center;gap:8px;}
+  .bar-bg{flex:1;height:8px;background:#E2E8F0;border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .pct-text{font-weight:800;width:46px;text-align:right;font-size:.8rem;}
+  .count-text{font-weight:700;text-align:right;color:var(--muted);font-size:.8rem;}
+  .lang-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .lang-tab{padding:7px 22px;border-radius:20px;border:2px solid var(--border);background:transparent;font-size:.8rem;font-weight:800;cursor:pointer;color:var(--muted);transition:all .15s;}
+  .lang-tab.fil.active{background:#7C3AED;color:#fff;border-color:#7C3AED;}
+  .lang-tab.eng.active{background:#1B3A6B;color:#fff;border-color:#1B3A6B;}
+  .lang-tab:hover:not(.active){border-color:var(--navy);color:var(--navy);}
+  .section-sep{height:1px;background:#E0E7FF;margin:20px 0;}
+  .summary-section-title{font-size:.8rem;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #E0E7FF;}
+  .back-btn{display:inline-flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;color:var(--navy);margin-bottom:14px;transition:background .12s;}
+  .back-btn:hover{background:#E0E7FF;}
+  .search-wrap{position:relative;margin-bottom:12px;}
+  .search-wrap input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito',sans-serif;outline:none;transition:border .15s;}
+  .search-wrap input:focus{border-color:var(--blue);}
+  .search-wrap .s-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.9rem;color:var(--muted);}
+  .placeholder{text-align:center;padding:60px 20px;color:var(--muted);}
+  .placeholder .ph-icon{font-size:3rem;margin-bottom:12px;}
+  /* Reading level pills */
+  .level-fru{color:#DC2626;background:#FEF2F2;border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:800;}
+  .level-ins{color:#CA8A04;background:#FEFCE8;border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:800;}
+  .level-ind{color:#16A34A;background:#F0FDF4;border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:800;}
+  /* Donut */
+  .donut-wrap{flex-shrink:0;position:relative;width:120px;height:120px;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .donut-center .dc-val{font-size:1.3rem;font-weight:900;font-family:'Raleway',sans-serif;}
+  .donut-center .dc-lbl{font-size:.58rem;color:var(--muted);font-weight:700;text-align:center;}
+  .donut-row{display:flex;align-items:center;gap:20px;margin-bottom:18px;}
+  .legend-list{flex:1;}
+  .legend-item{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.76rem;}
+  .legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  .legend-name{flex:1;color:var(--text);font-weight:600;}
+  .legend-val{font-weight:800;font-size:.76rem;}
+  /* Domain grid */
+  .domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+  .domain-card{background:#F8FAFF;border-radius:10px;padding:12px 14px;border:1.5px solid #E0E7FF;text-align:center;}
+  .domain-card .dv{font-size:1.3rem;font-weight:900;font-family:'Raleway',sans-serif;}
+  .domain-card .dl{font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:3px;}
+  /* Rankings */
+  .rankings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .rank-card{background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07);overflow:hidden;}
+  .rank-head{padding:13px 18px;font-size:.82rem;font-weight:800;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.6px;color:#fff;}
+  .rank-head.top{background:linear-gradient(135deg,#16A34A,#0891B2);}
+  .rank-head.bot{background:linear-gradient(135deg,#DC2626,#EA580C);}
+  .rank-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+  .rank-table th{background:#F8FAFF;color:var(--navy);padding:8px 12px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #E0E7FF;}
+  .rank-table td{padding:8px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+  .rank-table tr:last-child td{border-bottom:none;}
+  .rank-table tr:hover td{background:#F8FAFF;cursor:pointer;}
+  .rank-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-weight:900;font-size:.8rem;flex-shrink:0;}
+  .rank-gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;}
+  .rank-silver{background:linear-gradient(135deg,#C0C0C0,#909090);color:#000;}
+  .rank-bronze{background:linear-gradient(135deg,#CD7F32,#8B4513);color:#fff;}
+  .rank-other{background:#EEF2FF;color:var(--navy);}
+  .rank-select{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.78rem;font-family:'Nunito',sans-serif;color:var(--text);background:var(--card);outline:none;cursor:pointer;}
+  .rank-select:focus{border-color:var(--blue);}
+  .sector-badge{display:inline-block;font-size:.62rem;font-weight:800;padding:1px 7px;border-radius:10px;margin-left:5px;}
+  .sector-pub{background:#EFF6FF;color:#1B3A6B;}
+  .sector-pri{background:#FAF5FF;color:#7C3AED;}
+  @media(max-width:900px){.main-grid{grid-template-columns:1fr;}.kpi-strip{grid-template-columns:repeat(4,1fr);}.rankings-grid{grid-template-columns:1fr;}}
+  @media(max-width:600px){.kpi-strip{grid-template-columns:repeat(2,1fr);}.stats-row{grid-template-columns:repeat(2,1fr);}.domain-grid{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-icon">&#128218;</div>
+  <div class="header-text">
+    <h1>End-of-School-Year SHS Literacy Assessment &#8212; SDO Romblon</h1>
+    <p>Interactive Assessment Dashboard &nbsp;|&nbsp; Division of Romblon &nbsp;|&nbsp; Filipino &amp; English Reading Levels &amp; Domains</p>
+  </div>
+  <div class="header-badge">
+    <div style="font-size:1.1rem">&#127979;</div>
+    <div>44 Schools</div>
+    <div style="opacity:.7;font-size:.65rem">Senior High School</div>
+  </div>
+</header>
+<div class="shell">
+  <div class="kpi-strip" id="kpiStrip"></div>
+  <div class="main-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-head">&#128194; Navigator</div>
+        <div class="nav-tabs">
+          <button class="nav-tab active" onclick="switchTab('schools')">&#127983; Schools</button>
+          <button class="nav-tab" onclick="switchTab('levels')">&#128218; Levels</button>
+          <button class="nav-tab" onclick="switchTab('domains')">&#128202; Domains</button>
+          <button class="nav-tab" onclick="switchTab('rankings')">&#127942; Rankings</button>
+        </div>
+        <div class="panel-body" id="navBody" style="max-height:68vh;"></div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="detail-card">
+        <div class="detail-head">
+          <h2 id="detailTitle">SDO Romblon &#8212; Division Overview</h2>
+          <p id="detailSub">Click a school or tab to explore literacy data</p>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const RAW=[{"name":"Adventist Mission Academy of Romblon Inc.","sector":"Private","enrolled":22,"assessed":21,"fil":{"assessed":21,"frustration":21,"instructional":0,"independent":0,"literal":1,"inference":4,"knowledge":0},"eng":{"assessed":21,"frustration":18,"instructional":3,"independent":0,"literal":9,"inference":2,"knowledge":1}},{"name":"Agnipa National High School","sector":"Public","enrolled":42,"assessed":42,"fil":{"assessed":42,"frustration":42,"instructional":0,"independent":0,"literal":0,"inference":3,"knowledge":3},"eng":{"assessed":42,"frustration":38,"instructional":4,"independent":0,"literal":12,"inference":5,"knowledge":1}},{"name":"Agutay NHS","sector":"Public","enrolled":64,"assessed":64,"fil":{"assessed":64,"frustration":62,"instructional":1,"independent":1,"literal":11,"inference":6,"knowledge":2},"eng":{"assessed":64,"frustration":57,"instructional":6,"independent":1,"literal":15,"inference":17,"knowledge":3}},{"name":"Alcantara National High School","sector":"Public","enrolled":283,"assessed":279,"fil":{"assessed":279,"frustration":251,"instructional":27,"independent":1,"literal":26,"inference":35,"knowledge":22},"eng":{"assessed":279,"frustration":212,"instructional":64,"independent":3,"literal":132,"inference":60,"knowledge":22}},{"name":"Badajoz Tablas College","sector":"Private","enrolled":151,"assessed":151,"fil":{"assessed":151,"frustration":39,"instructional":90,"independent":22,"literal":101,"inference":76,"knowledge":79},"eng":{"assessed":151,"frustration":35,"instructional":97,"independent":19,"literal":96,"inference":81,"knowledge":41}},{"name":"Banton NHS","sector":"Public","enrolled":79,"assessed":79,"fil":{"assessed":79,"frustration":71,"instructional":8,"independent":0,"literal":2,"inference":21,"knowledge":7},"eng":{"assessed":79,"frustration":65,"instructional":14,"independent":0,"literal":50,"inference":9,"knowledge":3}},{"name":"Cajidiocan National High School","sector":"Public","enrolled":254,"assessed":254,"fil":{"assessed":254,"frustration":195,"instructional":59,"independent":0,"literal":26,"inference":42,"knowledge":50},"eng":{"assessed":254,"frustration":159,"instructional":95,"independent":0,"literal":92,"inference":48,"knowledge":46}},{"name":"Calatrava National High School","sector":"Public","enrolled":181,"assessed":181,"fil":{"assessed":181,"frustration":99,"instructional":38,"independent":44,"literal":70,"inference":73,"knowledge":81},"eng":{"assessed":181,"frustration":64,"instructional":36,"independent":81,"literal":112,"inference":100,"knowledge":130}},{"name":"Cambalo NHS","sector":"Public","enrolled":81,"assessed":81,"fil":{"assessed":81,"frustration":29,"instructional":44,"independent":8,"literal":21,"inference":43,"knowledge":38},"eng":{"assessed":81,"frustration":57,"instructional":24,"independent":0,"literal":30,"inference":10,"knowledge":23}},{"name":"Carmen NHS (Cabolutan NHS Ext.)","sector":"Public","enrolled":38,"assessed":72,"fil":{"assessed":72,"frustration":69,"instructional":3,"independent":0,"literal":7,"inference":5,"knowledge":3},"eng":{"assessed":72,"frustration":68,"instructional":4,"independent":0,"literal":21,"inference":7,"knowledge":4}},{"name":"Colegio de Tablas","sector":"Private","enrolled":36,"assessed":36,"fil":{"assessed":36,"frustration":18,"instructional":14,"independent":4,"literal":22,"inference":6,"knowledge":9},"eng":{"assessed":36,"frustration":16,"instructional":14,"independent":6,"literal":24,"inference":10,"knowledge":14}},{"name":"Concepcion NHS (Main)","sector":"Public","enrolled":49,"assessed":49,"fil":{"assessed":49,"frustration":33,"instructional":16,"independent":0,"literal":33,"inference":10,"knowledge":3},"eng":{"assessed":49,"frustration":23,"instructional":21,"independent":5,"literal":30,"inference":12,"knowledge":28}},{"name":"Corcuera National High School","sector":"Public","enrolled":79,"assessed":79,"fil":{"assessed":79,"frustration":53,"instructional":23,"independent":3,"literal":25,"inference":33,"knowledge":11},"eng":{"assessed":79,"frustration":37,"instructional":28,"independent":14,"literal":38,"inference":33,"knowledge":25}},{"name":"Danao National High School","sector":"Public","enrolled":82,"assessed":82,"fil":{"assessed":82,"frustration":69,"instructional":11,"independent":2,"literal":16,"inference":12,"knowledge":12},"eng":{"assessed":82,"frustration":66,"instructional":13,"independent":3,"literal":33,"inference":14,"knowledge":7}},{"name":"Don Carlos M. Mejias Memorial NHS","sector":"Public","enrolled":279,"assessed":279,"fil":{"assessed":279,"frustration":240,"instructional":39,"independent":0,"literal":32,"inference":62,"knowledge":30},"eng":{"assessed":279,"frustration":236,"instructional":35,"independent":8,"literal":106,"inference":35,"knowledge":27}},{"name":"Espa\u00f1a National High School","sector":"Public","enrolled":103,"assessed":103,"fil":{"assessed":103,"frustration":6,"instructional":78,"independent":19,"literal":42,"inference":69,"knowledge":50},"eng":{"assessed":103,"frustration":13,"instructional":73,"independent":17,"literal":76,"inference":46,"knowledge":51}},{"name":"Esteban Madrona National High School","sector":"Public","enrolled":133,"assessed":133,"fil":{"assessed":133,"frustration":99,"instructional":23,"independent":11,"literal":38,"inference":33,"knowledge":0},"eng":{"assessed":133,"frustration":78,"instructional":46,"independent":9,"literal":67,"inference":16,"knowledge":19}},{"name":"Ferrol National High School","sector":"Public","enrolled":103,"assessed":103,"fil":{"assessed":103,"frustration":98,"instructional":5,"independent":0,"literal":2,"inference":21,"knowledge":2},"eng":{"assessed":103,"frustration":78,"instructional":25,"independent":0,"literal":77,"inference":20,"knowledge":19}},{"name":"Guinbirayan National High School","sector":"Public","enrolled":54,"assessed":54,"fil":{"assessed":54,"frustration":0,"instructional":20,"independent":34,"literal":53,"inference":48,"knowledge":48},"eng":{"assessed":54,"frustration":0,"instructional":27,"independent":27,"literal":43,"inference":49,"knowledge":44}},{"name":"Holy Rosary Academy","sector":"Private","enrolled":107,"assessed":107,"fil":{"assessed":107,"frustration":106,"instructional":1,"independent":0,"literal":8,"inference":4,"knowledge":4},"eng":{"assessed":107,"frustration":96,"instructional":11,"independent":0,"literal":38,"inference":9,"knowledge":4}},{"name":"LOOC NATIONAL HIGH SCHOOL","sector":"Public","enrolled":423,"assessed":423,"fil":{"assessed":423,"frustration":31,"instructional":308,"independent":84,"literal":308,"inference":258,"knowledge":218},"eng":{"assessed":423,"frustration":42,"instructional":272,"independent":109,"literal":287,"inference":259,"knowledge":202}},{"name":"Libertad National High School","sector":"Public","enrolled":65,"assessed":62,"fil":{"assessed":62,"frustration":60,"instructional":2,"independent":0,"literal":2,"inference":9,"knowledge":4},"eng":{"assessed":62,"frustration":54,"instructional":8,"independent":0,"literal":23,"inference":3,"knowledge":2}},{"name":"Lumbang East National High School","sector":"Public","enrolled":69,"assessed":69,"fil":{"assessed":69,"frustration":63,"instructional":6,"independent":0,"literal":11,"inference":7,"knowledge":3},"eng":{"assessed":69,"frustration":60,"instructional":8,"independent":1,"literal":22,"inference":2,"knowledge":13}},{"name":"Mabini NHS","sector":"Public","enrolled":82,"assessed":82,"fil":{"assessed":82,"frustration":67,"instructional":15,"independent":0,"literal":15,"inference":14,"knowledge":11},"eng":{"assessed":82,"frustration":58,"instructional":23,"independent":1,"literal":50,"inference":21,"knowledge":11}},{"name":"Macario Molina NHS","sector":"Public","enrolled":122,"assessed":122,"fil":{"assessed":122,"frustration":68,"instructional":39,"independent":15,"literal":51,"inference":39,"knowledge":28},"eng":{"assessed":122,"frustration":65,"instructional":54,"independent":3,"literal":54,"inference":28,"knowledge":28}},{"name":"Magdiwang NHS","sector":"Public","enrolled":231,"assessed":231,"fil":{"assessed":231,"frustration":222,"instructional":9,"independent":0,"literal":33,"inference":23,"knowledge":2},"eng":{"assessed":231,"frustration":216,"instructional":14,"independent":1,"literal":79,"inference":18,"knowledge":6}},{"name":"Mayha National High School-RNHS (Odiongan) Ext.","sector":"Public","enrolled":28,"assessed":28,"fil":{"assessed":28,"frustration":0,"instructional":21,"independent":7,"literal":11,"inference":21,"knowledge":24},"eng":{"assessed":28,"frustration":0,"instructional":21,"independent":7,"literal":17,"inference":21,"knowledge":14}},{"name":"Montfort Academy(MA) Inc.","sector":"Private","enrolled":112,"assessed":112,"fil":{"assessed":112,"frustration":105,"instructional":7,"independent":0,"literal":27,"inference":19,"knowledge":1},"eng":{"assessed":112,"frustration":107,"instructional":5,"independent":0,"literal":27,"inference":6,"knowledge":2}},{"name":"Odiongan National High School","sector":"Public","enrolled":571,"assessed":571,"fil":{"assessed":571,"frustration":391,"instructional":163,"independent":17,"literal":155,"inference":150,"knowledge":121},"eng":{"assessed":571,"frustration":335,"instructional":215,"independent":21,"literal":366,"inference":158,"knowledge":108}},{"name":"Sacred Heart School Romblon Inc.","sector":"Private","enrolled":28,"assessed":28,"fil":{"assessed":28,"frustration":26,"instructional":2,"independent":0,"literal":1,"inference":2,"knowledge":0},"eng":{"assessed":28,"frustration":26,"instructional":2,"independent":0,"literal":10,"inference":1,"knowledge":2}},{"name":"San Agustin National Trade School","sector":"Public","enrolled":62,"assessed":60,"fil":{"assessed":60,"frustration":11,"instructional":34,"independent":15,"literal":32,"inference":33,"knowledge":28},"eng":{"assessed":60,"frustration":4,"instructional":37,"independent":19,"literal":55,"inference":34,"knowledge":12}},{"name":"San Andres Cultural High School","sector":"Public","enrolled":36,"assessed":36,"fil":{"assessed":36,"frustration":2,"instructional":22,"independent":12,"literal":29,"inference":28,"knowledge":25},"eng":{"assessed":36,"frustration":0,"instructional":16,"independent":20,"literal":25,"inference":32,"knowledge":33}},{"name":"San Andres NHS","sector":"Public","enrolled":202,"assessed":202,"fil":{"assessed":202,"frustration":57,"instructional":127,"independent":18,"literal":137,"inference":114,"knowledge":56},"eng":{"assessed":202,"frustration":59,"instructional":116,"independent":27,"literal":161,"inference":113,"knowledge":39}},{"name":"San Jose Agricultural HS","sector":"Public","enrolled":211,"assessed":211,"fil":{"assessed":211,"frustration":203,"instructional":8,"independent":0,"literal":69,"inference":26,"knowledge":19},"eng":{"assessed":209,"frustration":151,"instructional":44,"independent":14,"literal":99,"inference":20,"knowledge":84}},{"name":"Santa Maria NHS","sector":"Public","enrolled":135,"assessed":135,"fil":{"assessed":135,"frustration":131,"instructional":4,"independent":0,"literal":7,"inference":17,"knowledge":2},"eng":{"assessed":135,"frustration":128,"instructional":5,"independent":2,"literal":45,"inference":6,"knowledge":3}},{"name":"Sibale Academy of the Immaculate Concepcion","sector":"Private","enrolled":19,"assessed":19,"fil":{"assessed":19,"frustration":5,"instructional":7,"independent":7,"literal":12,"inference":13,"knowledge":14},"eng":{"assessed":19,"frustration":1,"instructional":8,"independent":10,"literal":16,"inference":12,"knowledge":17}},{"name":"Sta. Fe Senior High School","sector":"Public","enrolled":214,"assessed":214,"fil":{"assessed":214,"frustration":203,"instructional":11,"independent":0,"literal":31,"inference":23,"knowledge":10},"eng":{"assessed":214,"frustration":191,"instructional":23,"independent":0,"literal":99,"inference":26,"knowledge":6}},{"name":"Tanagan National High School","sector":"Public","enrolled":70,"assessed":70,"fil":{"assessed":70,"frustration":17,"instructional":52,"independent":1,"literal":44,"inference":10,"knowledge":34},"eng":{"assessed":70,"frustration":32,"instructional":29,"independent":9,"literal":37,"inference":18,"knowledge":22}},{"name":"Tranquilino Cawaling Sr. National High School","sector":"Public","enrolled":23,"assessed":23,"fil":{"assessed":23,"frustration":23,"instructional":0,"independent":0,"literal":2,"inference":0,"knowledge":0},"eng":{"assessed":23,"frustration":23,"instructional":0,"independent":0,"literal":6,"inference":0,"knowledge":0}},{"name":"Tugdan NHS","sector":"Public","enrolled":45,"assessed":45,"fil":{"assessed":45,"frustration":24,"instructional":21,"independent":0,"literal":15,"inference":13,"knowledge":16},"eng":{"assessed":45,"frustration":18,"instructional":25,"independent":2,"literal":25,"inference":10,"knowledge":32}},{"name":"Epiphany School of Peace and Goodwill-IFi Learning Institution Inc.","sector":"Private","enrolled":186,"assessed":186,"fil":{"assessed":186,"frustration":0,"instructional":126,"independent":60,"literal":87,"inference":99,"knowledge":116},"eng":{"assessed":186,"frustration":0,"instructional":106,"independent":80,"literal":118,"inference":120,"knowledge":54}},{"name":"Erhard Systems Technological Institute (ESTI)","sector":"Private","enrolled":100,"assessed":100,"fil":{"assessed":100,"frustration":11,"instructional":63,"independent":26,"literal":70,"inference":69,"knowledge":54},"eng":{"assessed":100,"frustration":10,"instructional":51,"independent":39,"literal":73,"inference":70,"knowledge":61}},{"name":"Romblon NHS, Romblon","sector":"Public","enrolled":577,"assessed":564,"fil":{"assessed":563,"frustration":514,"instructional":45,"independent":4,"literal":64,"inference":85,"knowledge":44},"eng":{"assessed":564,"frustration":471,"instructional":72,"independent":21,"literal":195,"inference":81,"knowledge":50}},{"name":"Virginia Centurione Bracelli School","sector":"Private","enrolled":72,"assessed":72,"fil":{"assessed":72,"frustration":22,"instructional":50,"independent":0,"literal":21,"inference":51,"knowledge":24},"eng":{"assessed":72,"frustration":16,"instructional":36,"independent":20,"literal":63,"inference":46,"knowledge":39}}]
+;
+
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+const LEVEL_COLORS = {frustration:'#DC2626', instructional:'#CA8A04', independent:'#16A34A'};
+const LEVEL_ICONS  = {frustration:'&#128308;', instructional:'&#128993;', independent:'&#128994;'};
+const LEVEL_LABELS = {frustration:'Frustration', instructional:'Instructional', independent:'Independent'};
+const DOMAIN_COLORS = {literal:'#2563EB', inference:'#7C3AED', knowledge:'#0891B2'};
+const DOMAIN_LABELS = {literal:'Literal', inference:'Inference & Interpretation', knowledge:'Knowledge Construction'};
+const DOMAIN_ICONS  = {literal:'&#128270;', inference:'&#129504;', knowledge:'&#127747;'};
+const FIL_COLOR='#7C3AED', ENG_COLOR='#1B3A6B';
+const MUN_MAP={'Adventist Mission Academy of Romblon Inc.':'Romblon','Agnipa National High School':'Romblon','Agutay NHS':'Magdiwang','Alcantara National High School':'Alcantara','Badajoz Tablas College':'San Andres','Banton NHS':'Banton','Cajidiocan National High School':'Cajidiocan','Calatrava National High School':'Calatrava','Cambalo NHS':'Cajidiocan','Carmen NHS (Cabolutan NHS Ext.)':'San Agustin','Colegio de Tablas':'Odiongan','Concepcion NHS (Main)':'Concepcion','Corcuera National High School':'Corcuera','Danao National High School':'Cajidiocan','Don Carlos M. Mejias Memorial NHS':'San Fernando','España National High School':'San Fernando','Esteban Madrona National High School':'San Agustin','Ferrol National High School':'Ferrol','Guinbirayan National High School':'Santa Fe','Holy Rosary Academy':'Romblon','LOOC NATIONAL HIGH SCHOOL':'Looc','Libertad National High School':'Odiongan','Lumbang East National High School':'Cajidiocan','Mabini NHS':'Corcuera','Macario Molina NHS':'Romblon','Magdiwang NHS':'Magdiwang','Mayha National High School-RNHS (Odiongan) Ext.':'Odiongan','Montfort Academy(MA) Inc.':'San Andres','Odiongan National High School':'Odiongan','Sacred Heart School Romblon Inc.':'Romblon','San Agustin National Trade School':'San Agustin','San Andres Cultural High School':'San Andres','San Andres NHS':'San Andres','San Jose Agricultural HS':'San Jose','Santa Maria NHS':'Santa Maria','Sibale Academy of the Immaculate Concepcion':'Cajidiocan','Sta. Fe Senior High School':'Santa Fe','Tanagan National High School':'San Andres','Tranquilino Cawaling Sr. National High School':'Santa Fe','Tugdan NHS':'Alcantara','Epiphany School of Peace and Goodwill-IFi Learning Institution Inc.':'Romblon','Erhard Systems Technological Institute (ESTI)':'Odiongan','Romblon NHS, Romblon':'Romblon','Virginia Centurione Bracelli School':'Romblon'};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function pct(n,d){return d>0?(n/d*100).toFixed(1)+'%':'0%';}
+function pctN(n,d){return d>0?n/d*100:0;}
+function sumKey(arr,lang,key){return arr.reduce((a,s)=>a+(s[lang][key]||0),0);}
+function divTotal(){
+  return {
+    enrolled:RAW.reduce((a,s)=>a+s.enrolled,0),
+    assessed:RAW.reduce((a,s)=>a+s.assessed,0),
+    fil:{
+      assessed:sumKey(RAW,'fil','assessed'),
+      frustration:sumKey(RAW,'fil','frustration'),
+      instructional:sumKey(RAW,'fil','instructional'),
+      independent:sumKey(RAW,'fil','independent'),
+      literal:sumKey(RAW,'fil','literal'),
+      inference:sumKey(RAW,'fil','inference'),
+      knowledge:sumKey(RAW,'fil','knowledge')
+    },
+    eng:{
+      assessed:sumKey(RAW,'eng','assessed'),
+      frustration:sumKey(RAW,'eng','frustration'),
+      instructional:sumKey(RAW,'eng','instructional'),
+      independent:sumKey(RAW,'eng','independent'),
+      literal:sumKey(RAW,'eng','literal'),
+      inference:sumKey(RAW,'eng','inference'),
+      knowledge:sumKey(RAW,'eng','knowledge')
+    }
+  };
+}
+function getBadgeColorInd(pctNum){
+  if(pctNum>=50) return '#16A34A';
+  if(pctNum>=25) return '#2563EB';
+  if(pctNum>=10) return '#CA8A04';
+  return '#DC2626';
+}
+function getFruBadgeColor(pctNum){
+  if(pctNum>=80) return '#DC2626';
+  if(pctNum>=60) return '#EA580C';
+  if(pctNum>=40) return '#CA8A04';
+  return '#16A34A';
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let activeTab='schools', selSchool=null, selLang='fil', searchQ='';
+let rankLang='fil', rankMetric='ind_pct', rankSector='';
+let navLevel='independent', levelNavLang='fil';
+
+// ─── KPI ─────────────────────────────────────────────────────────────────────
+function renderKPI(){
+  const d=divTotal();
+  const pub=RAW.filter(s=>s.sector==='Public').length;
+  const pri=RAW.filter(s=>s.sector==='Private').length;
+  const kpis=[
+    {icon:'&#127979;',val:RAW.length,lbl:'Total Schools',sub:pub+'P / '+pri+'Priv',color:'#1B3A6B'},
+    {icon:'&#128203;',val:d.enrolled.toLocaleString(),lbl:'Enrolled',sub:'SHS Learners',color:'#2563EB'},
+    {icon:'&#9989;',val:d.assessed.toLocaleString(),lbl:'Assessed',sub:'Learners',color:'#0891B2'},
+    {icon:'&#128218;',val:pct(d.fil.independent,d.fil.assessed),lbl:'Filipino Ind.',sub:'Independent Readers',color:'#7C3AED'},
+    {icon:'&#128218;',val:pct(d.eng.independent,d.eng.assessed),lbl:'English Ind.',sub:'Independent Readers',color:'#1B3A6B'},
+    {icon:'&#9888;',val:pct(d.fil.frustration,d.fil.assessed),lbl:'Filipino Fru.',sub:'At Frustration Level',color:'#DC2626'},
+    {icon:'&#9888;',val:pct(d.eng.frustration,d.eng.assessed),lbl:'English Fru.',sub:'At Frustration Level',color:'#EA580C'},
+  ];
+  document.getElementById('kpiStrip').innerHTML=kpis.map(k=>`<div class="kpi-card" style="border-top-color:${k.color}"><div class="kpi-icon">${k.icon}</div><div class="kpi-val" style="color:${k.color}">${k.val}</div><div class="kpi-lbl">${k.lbl}<br><span style="color:#94A3B8;font-size:.65rem">${k.sub}</span></div></div>`).join('');
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  if(tab!=='rankings'){selSchool=null;searchQ='';}
+  document.querySelectorAll('.nav-tab').forEach((b,i)=>{b.classList.toggle('active',['schools','levels','domains','rankings'][i]===tab);});
+  renderNav(); renderDetail();
+}
+
+function renderNav(){
+  const nb=document.getElementById('navBody');
+  if(activeTab==='schools') renderSchoolsNav(nb);
+  else if(activeTab==='levels') renderLevelsNav(nb);
+  else if(activeTab==='domains') renderDomainsNav(nb);
+  else renderRankingsNav(nb);
+}
+
+// ─── SCHOOLS NAV ─────────────────────────────────────────────────────────────
+function renderSchoolsNav(nb){
+  // sector filter pills + search
+  const sectorPills=['','Public','Private'].map(s=>`<span onclick="rankSector='${s}';renderSchoolsNav(document.getElementById('navBody'));" style="cursor:pointer;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;background:${rankSector===s?'var(--navy)':'#EEF2FF'};color:${rankSector===s?'#fff':'var(--muted)'};border:1.5px solid ${rankSector===s?'var(--navy)':'#C7D2FE'}">${s||'All'}</span>`).join('');
+  nb.innerHTML=`<div style="padding:10px 4px 6px"><div class="search-wrap"><span class="s-icon">&#128269;</span><input placeholder="Search school..." oninput="searchQ=this.value;renderSchoolsNav(document.getElementById('navBody'))" value="${searchQ}" autofocus></div><div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px;"><span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Filter:</span>${sectorPills}</div></div>`;
+  let list=RAW.filter(s=>(rankSector===''||s.sector===rankSector)&&(s.name.toLowerCase().includes(searchQ.toLowerCase())));
+  list.forEach(s=>{
+    const ind_f=pctN(s.fil.independent,s.fil.assessed);
+    const ind_e=pctN(s.eng.independent,s.eng.assessed);
+    const fru_f=pctN(s.fil.frustration,s.fil.assessed);
+    const el=document.createElement('div');
+    el.className='list-item'+(selSchool===s.name?' active':'');
+    const sIcon=s.sector==='Public'?'&#127983;':'&#127979;';
+    el.innerHTML=`<div class="list-icon">${sIcon}</div><div style="flex:1;min-width:0"><div class="list-name">${s.name}<span class="sector-badge sector-${s.sector==='Public'?'pub':'pri'}">${s.sector}</span></div><div class="list-sub">${s.assessed.toLocaleString()} assessed</div><div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;"><span class="level-ind">FIL-Ind ${ind_f.toFixed(0)}%</span><span class="level-ind">ENG-Ind ${ind_e.toFixed(0)}%</span><span style="font-size:.62rem;font-weight:700;color:#DC2626;background:#FEF2F2;border-radius:4px;padding:1px 5px;">FIL-Fru ${fru_f.toFixed(0)}%</span></div><div class="mini-bar-wrap" style="margin-top:5px"><div class="mini-bar" style="width:${ind_f}%;background:#7C3AED"></div></div></div>`;
+    el.onclick=()=>{selSchool=s.name;renderNav();renderDetail();};
+    nb.appendChild(el);
+  });
+  if(!list.length) nb.innerHTML+=`<div class="placeholder"><div class="ph-icon">&#128268;</div><p>No schools match</p></div>`;
+}
+
+// ─── LEVELS NAV ──────────────────────────────────────────────────────────────
+function renderLevelsNav(nb){
+  const d=divTotal();
+  const langPills=['fil','eng'].map(l=>`<span onclick="levelNavLang='${l}';levelDetailView='schools';levelDetailMunFilter='';renderLevelsNav(document.getElementById('navBody'));" style="cursor:pointer;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;background:${levelNavLang===l?(l==='fil'?'#7C3AED':'#1B3A6B'):'#EEF2FF'};color:${levelNavLang===l?'#fff':'var(--muted)'};border:1.5px solid ${levelNavLang===l?(l==='fil'?'#7C3AED':'#1B3A6B'):'#C7D2FE'}">${l==='fil'?'&#127477; Filipino':'&#127468;&#127463; English'}</span>`).join('');
+  nb.innerHTML=`<div style="padding:10px 4px 8px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;"><span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Language:</span>${langPills}</div>`;
+  const ld=d[levelNavLang];
+  ['independent','instructional','frustration'].forEach(level=>{
+    const cnt=ld[level];
+    const p=pctN(cnt,ld.assessed);
+    const color=LEVEL_COLORS[level];
+    const el=document.createElement('div');
+    el.className='list-item'+(navLevel===level?' active':'');
+    el.innerHTML=`<div class="list-icon" style="font-size:1.5rem">${LEVEL_ICONS[level]}</div><div style="flex:1;min-width:0"><div class="list-name" style="color:${color}">${LEVEL_LABELS[level]}</div><div class="list-sub">${cnt.toLocaleString()} learners · ${p.toFixed(1)}% of assessed</div><div class="mini-bar-wrap"><div class="mini-bar" style="width:${p}%;background:${color}"></div></div></div>`;
+    el.onclick=()=>{navLevel=level;levelDetailView='schools';levelDetailMunFilter='';renderLevelsDetail(level,levelNavLang);renderLevelsNav(document.getElementById('navBody'));};
+    nb.appendChild(el);
+  });
+}
+
+// ─── DOMAINS NAV ─────────────────────────────────────────────────────────────
+let domainSector=''; // '' | 'Public' | 'Private'
+
+function renderDomainsNav(nb){
+  // compute filtered totals for nav display
+  const pool=domainSector===''?RAW:RAW.filter(s=>s.sector===domainSector);
+  const filA=pool.reduce((a,s)=>a+s.fil.assessed,0);
+  const engA=pool.reduce((a,s)=>a+s.eng.assessed,0);
+  const getSum=(lang,key)=>pool.reduce((a,s)=>a+s[lang][key],0);
+
+  const langPills=['fil','eng'].map(l=>`<span onclick="levelNavLang='${l}';levelDetailView='schools';levelDetailMunFilter='';renderDomainsNav(document.getElementById('navBody'));renderDomainsDetail(levelNavLang);" style="cursor:pointer;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:12px;background:${levelNavLang===l?(l==='fil'?'#7C3AED':'#1B3A6B'):'#EEF2FF'};color:${levelNavLang===l?'#fff':'var(--muted)'};border:1.5px solid ${levelNavLang===l?(l==='fil'?'#7C3AED':'#1B3A6B'):'#C7D2FE'}">${l==='fil'?'&#127477; Filipino':'&#127468;&#127463; English'}</span>`).join('');
+
+  const sectorOpts=[
+    {v:'',   icon:'&#127968;&#127979;', label:'All',     tip:'Public + Private'},
+    {v:'Public',  icon:'&#127968;',     label:'Public',  tip:'Public Schools Only'},
+    {v:'Private', icon:'&#127979;',     label:'Private', tip:'Private Schools Only'},
+  ];
+  const sectorPills=sectorOpts.map(o=>`<span onclick="domainSector='${o.v}';renderDomainsNav(document.getElementById('navBody'));renderDomainsDetail(levelNavLang);" title="${o.tip}" style="cursor:pointer;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:12px;background:${domainSector===o.v?'#1B3A6B':'#EEF2FF'};color:${domainSector===o.v?'#fff':'var(--muted)'};border:1.5px solid ${domainSector===o.v?'#1B3A6B':'#C7D2FE'};display:inline-flex;align-items:center;gap:4px;">${o.icon} ${o.label}</span>`).join('');
+
+  nb.innerHTML=`<div style="padding:10px 4px 4px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;"><span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Language:</span>${langPills}</div>
+  <div style="padding:4px 4px 8px;display:flex;gap:5px;align-items:center;flex-wrap:wrap;"><span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Sector:</span>${sectorPills}</div>`;
+
+  const assessed=levelNavLang==='fil'?filA:engA;
+  ['literal','inference','knowledge'].forEach(dom=>{
+    const cnt=getSum(levelNavLang,dom);
+    const p=pctN(cnt,assessed);
+    const color=DOMAIN_COLORS[dom];
+    const el=document.createElement('div');
+    el.className='list-item';
+    el.innerHTML=`<div class="list-icon" style="font-size:1.5rem">${DOMAIN_ICONS[dom]}</div><div style="flex:1;min-width:0"><div class="list-name" style="color:${color}">${DOMAIN_LABELS[dom]}</div><div class="list-sub">${cnt.toLocaleString()} learners · ${p.toFixed(1)}% of assessed</div><div class="mini-bar-wrap"><div class="mini-bar" style="width:${p}%;background:${color}"></div></div></div>`;
+    el.onclick=()=>{renderDomainsDetail(levelNavLang);};
+    nb.appendChild(el);
+  });
+  renderDomainsDetail(levelNavLang);
+}
+
+// ─── RANKINGS NAV ────────────────────────────────────────────────────────────
+function renderRankingsNav(nb){
+  nb.innerHTML=`<div style="padding:12px 4px 8px">
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">Language</div>
+    <select class="rank-select" style="width:100%;margin-bottom:10px" onchange="rankLang=this.value;renderRankingsDetail();">
+      <option value="fil"${rankLang==='fil'?' selected':''}>&#127477; Filipino</option>
+      <option value="eng"${rankLang==='eng'?' selected':''}>&#127468;&#127463; English</option>
+    </select>
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">Sort By</div>
+    <select class="rank-select" style="width:100%;margin-bottom:10px" onchange="rankMetric=this.value;renderRankingsDetail();">
+      <option value="ind_pct"${rankMetric==='ind_pct'?' selected':''}>% Independent</option>
+      <option value="ind"${rankMetric==='ind'?' selected':''}>No. Independent</option>
+      <option value="fru_pct"${rankMetric==='fru_pct'?' selected':''}>% Frustration</option>
+      <option value="assessed"${rankMetric==='assessed'?' selected':''}>Total Assessed</option>
+    </select>
+    <div style="font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">Sector</div>
+    <select class="rank-select" style="width:100%;margin-bottom:10px" onchange="rankSector=this.value;renderRankingsDetail();">
+      <option value=""${rankSector===''?' selected':''}>All Schools</option>
+      <option value="Public"${rankSector==='Public'?' selected':''}>Public Only</option>
+      <option value="Private"${rankSector==='Private'?' selected':''}>Private Only</option>
+    </select>
+  </div>`;
+  const el=document.createElement('div');
+  el.className='list-item active';
+  el.innerHTML=`<div class="list-icon">&#127942;</div><div><div class="list-name">School Rankings</div><div class="list-sub">${rankLang==='fil'?'Filipino':'English'} · ${rankSector||'All Sectors'}</div></div>`;
+  el.onclick=()=>renderRankingsDetail();
+  nb.appendChild(el);
+  renderRankingsDetail();
+}
+
+// ─── DETAIL DISPATCH ─────────────────────────────────────────────────────────
+function renderDetail(){
+  if(activeTab==='schools'){
+    if(selSchool) renderSchoolDetail();
+    else renderDivisionOverview();
+  } else if(activeTab==='levels'){
+    renderLevelsDetail(navLevel,levelNavLang);
+  } else if(activeTab==='domains'){
+    renderDomainsDetail(levelNavLang);
+  } else {
+    renderRankingsDetail();
+  }
+}
+
+// ─── DONUT HELPER ────────────────────────────────────────────────────────────
+function drawDonut(canvasId,data,total){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const cx=60,cy=60,r=50,iR=34;
+  ctx.clearRect(0,0,120,120);
+  const colors=[LEVEL_COLORS.frustration,LEVEL_COLORS.instructional,LEVEL_COLORS.independent];
+  const vals=[data.frustration,data.instructional,data.independent];
+  let start=-Math.PI/2;
+  vals.forEach((v,i)=>{
+    const slice=(v/total)*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+slice);ctx.closePath();
+    ctx.fillStyle=colors[i];ctx.fill();start+=slice;
+  });
+  ctx.beginPath();ctx.arc(cx,cy,iR,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+
+// ─── DIVISION OVERVIEW ───────────────────────────────────────────────────────
+function renderDivisionOverview(){
+  const d=divTotal();
+  document.getElementById('detailTitle').textContent='SDO Romblon — Division Overview';
+  document.getElementById('detailSub').textContent='SHS Literacy Assessment · 44 Schools · Filipino & English';
+  const pub=RAW.filter(s=>s.sector==='Public').length;
+  const pri=RAW.filter(s=>s.sector==='Private').length;
+  const fil_ind=pctN(d.fil.independent,d.fil.assessed);
+  const eng_ind=pctN(d.eng.independent,d.eng.assessed);
+  document.getElementById('detailBody').innerHTML=`
+  <div class="stats-row">
+    <div class="stat-box"><div class="sv" style="color:#1B3A6B">${RAW.length}</div><div class="sl">Schools</div></div>
+    <div class="stat-box"><div class="sv" style="color:#2563EB">${d.enrolled.toLocaleString()}</div><div class="sl">Enrolled</div></div>
+    <div class="stat-box"><div class="sv" style="color:#0891B2">${d.assessed.toLocaleString()}</div><div class="sl">Assessed</div></div>
+    <div class="stat-box"><div class="sv" style="color:#64748B">${pub}+${pri}</div><div class="sl">Pub + Priv</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+    <!-- FILIPINO -->
+    <div style="background:#FAF5FF;border:1.5px solid #C4B5FD;border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:#7C3AED;font-size:.85rem;margin-bottom:10px;">&#127477; Filipino Reading Levels</div>
+      <div class="donut-row" style="margin-bottom:10px;">
+        <div class="donut-wrap"><canvas id="divFilDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:#7C3AED">${fil_ind.toFixed(1)}%</div><div class="dc-lbl">Ind.</div></div></div>
+        <div class="legend-list">${['independent','instructional','frustration'].map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${LEVEL_LABELS[l]}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${d.fil[l].toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctN(d.fil[l],d.fil.assessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+      </div>
+    </div>
+    <!-- ENGLISH -->
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;padding:14px;">
+      <div style="font-weight:800;color:#1B3A6B;font-size:.85rem;margin-bottom:10px;">&#127468;&#127463; English Reading Levels</div>
+      <div class="donut-row" style="margin-bottom:10px;">
+        <div class="donut-wrap"><canvas id="divEngDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:#1B3A6B">${eng_ind.toFixed(1)}%</div><div class="dc-lbl">Ind.</div></div></div>
+        <div class="legend-list">${['independent','instructional','frustration'].map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${LEVEL_LABELS[l]}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${d.eng[l].toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctN(d.eng[l],d.eng.assessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+      </div>
+    </div>
+  </div>
+  <p class="summary-section-title">&#127983; School Summary — All 44 Schools</p>
+  <table class="prof-table">
+    <thead><tr><th>School</th><th>Sector</th><th>Assessed</th><th>FIL Ind%</th><th>ENG Ind%</th><th>FIL Fru%</th></tr></thead>
+    <tbody>${[...RAW].sort((a,b)=>pctN(b.fil.independent,b.fil.assessed)-pctN(a.fil.independent,a.fil.assessed)).map(s=>{
+      const fi=pctN(s.fil.independent,s.fil.assessed);
+      const ei=pctN(s.eng.independent,s.eng.assessed);
+      const ff=pctN(s.fil.frustration,s.fil.assessed);
+      return `<tr onclick="selSchool='${s.name.replace(/'/g,"\\'")}';switchTab('schools');renderDetail();" style="cursor:pointer">
+        <td><b>${s.name}</b></td>
+        <td><span class="sector-badge sector-${s.sector==='Public'?'pub':'pri'}">${s.sector}</span></td>
+        <td class="count-text">${s.assessed}</td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${fi}%;background:#7C3AED"></div></div><span class="pct-text" style="color:${getBadgeColorInd(fi)}">${fi.toFixed(1)}%</span></div></td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${ei}%;background:#1B3A6B"></div></div><span class="pct-text" style="color:${getBadgeColorInd(ei)}">${ei.toFixed(1)}%</span></div></td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${ff}%;background:#DC2626"></div></div><span class="pct-text" style="color:${getFruBadgeColor(ff)}">${ff.toFixed(1)}%</span></div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+  setTimeout(()=>{drawDonut('divFilDonut',d.fil,d.fil.assessed);drawDonut('divEngDonut',d.eng,d.eng.assessed);},50);
+}
+
+// ─── SCHOOL DETAIL ───────────────────────────────────────────────────────────
+function renderSchoolDetail(){
+  const s=RAW.find(x=>x.name===selSchool);
+  if(!s){renderDivisionOverview();return;}
+  document.getElementById('detailTitle').textContent='&#127983; '+s.name;
+  document.getElementById('detailSub').textContent=s.sector+' School · '+s.assessed.toLocaleString()+' Assessed · Filipino & English Literacy';
+  const lang=selLang||'fil';
+  const ld=s[lang];
+  const ind_p=pctN(ld.independent,ld.assessed);
+  const fru_p=pctN(ld.frustration,ld.assessed);
+  const ins_p=pctN(ld.instructional,ld.assessed);
+  document.getElementById('detailBody').innerHTML=`
+  <button class="back-btn" onclick="selSchool=null;renderDetail();">&#8592; Back to Overview</button>
+  <div class="stats-row">
+    <div class="stat-box"><div class="sv" style="color:#2563EB">${s.enrolled.toLocaleString()}</div><div class="sl">Enrolled</div></div>
+    <div class="stat-box"><div class="sv" style="color:#0891B2">${s.assessed.toLocaleString()}</div><div class="sl">Assessed</div></div>
+    <div class="stat-box"><div class="sv" style="color:#7C3AED">${pct(s.fil.independent,s.fil.assessed)}</div><div class="sl">FIL Ind.</div></div>
+    <div class="stat-box"><div class="sv" style="color:#1B3A6B">${pct(s.eng.independent,s.eng.assessed)}</div><div class="sl">ENG Ind.</div></div>
+  </div>
+  <div class="lang-tabs">
+    <button class="lang-tab fil${lang==='fil'?' active':''}" onclick="selLang='fil';renderSchoolDetail();">&#127477; Filipino</button>
+    <button class="lang-tab eng${lang==='eng'?' active':''}" onclick="selLang='eng';renderSchoolDetail();">&#127468;&#127463; English</button>
+  </div>
+  <div class="donut-row">
+    <div class="donut-wrap"><canvas id="schoolDonut" width="120" height="120"></canvas><div class="donut-center"><div class="dc-val" style="color:${lang==='fil'?'#7C3AED':'#1B3A6B'}">${ind_p.toFixed(1)}%</div><div class="dc-lbl">${lang==='fil'?'FIL':'ENG'} Ind.</div></div></div>
+    <div class="legend-list">${['independent','instructional','frustration'].map(l=>`<div class="legend-item"><div class="legend-dot" style="background:${LEVEL_COLORS[l]}"></div><div class="legend-name">${LEVEL_LABELS[l]}</div><div class="legend-val" style="color:${LEVEL_COLORS[l]}">${ld[l].toLocaleString()} <span style="font-weight:400;color:var(--muted);font-size:.7rem">(${pctN(ld[l],ld.assessed).toFixed(1)}%)</span></div></div>`).join('')}</div>
+  </div>
+  <p class="summary-section-title">&#128202; Reading Level Breakdown — ${lang==='fil'?'Filipino':'English'}</p>
+  <table class="prof-table" style="margin-bottom:18px">
+    <thead><tr><th>Reading Level</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+    <tbody>${['independent','instructional','frustration'].map(l=>{const cnt=ld[l];const p=pctN(cnt,ld.assessed);return `<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${LEVEL_COLORS[l]};margin-right:6px;"></span><b>${LEVEL_LABELS[l]}</b></td><td class="count-text">${cnt}</td><td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${p}%;background:${LEVEL_COLORS[l]}"></div></div><span class="pct-text" style="color:${LEVEL_COLORS[l]}">${p.toFixed(1)}%</span></div></td></tr>`;}).join('')}</tbody>
+  </table>
+  <p class="summary-section-title">&#127914; Domain Performance — ${lang==='fil'?'Filipino':'English'}</p>
+  <div class="domain-grid">
+    ${['literal','inference','knowledge'].map(dom=>{const cnt=ld[dom];const p=pctN(cnt,ld.assessed);return `<div class="domain-card"><div class="dv" style="color:${DOMAIN_COLORS[dom]}">${cnt}</div><div style="font-size:.75rem;font-weight:700;margin:4px 0;color:${DOMAIN_COLORS[dom]}">${pct(cnt,ld.assessed)}</div><div class="dl">${DOMAIN_ICONS[dom]} ${DOMAIN_LABELS[dom]}</div></div>`;}).join('')}
+  </div>
+  <div style="margin-top:12px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+  setTimeout(()=>drawDonut('schoolDonut',ld,ld.assessed),50);
+}
+
+// ─── LEVELS DETAIL ───────────────────────────────────────────────────────────
+let levelDetailView='schools'; // 'schools' | 'municipality' | 'sector'
+let levelDetailMunFilter=''; // '' = all, or specific municipality name
+
+function renderLevelsDetail(level, lang, view, munFilter){
+  if(view!==undefined) levelDetailView=view;
+  if(munFilter!==undefined) levelDetailMunFilter=munFilter;
+  const langLabel=lang==='fil'?'Filipino':'English';
+  const color=LEVEL_COLORS[level];
+  document.getElementById('detailTitle').textContent=LEVEL_ICONS[level]+' '+LEVEL_LABELS[level]+' — '+langLabel;
+  document.getElementById('detailSub').textContent='Schools ranked by '+LEVEL_LABELS[level]+' reading level in '+langLabel;
+
+  const d=divTotal();
+  const totalCnt=d[lang][level];
+  const totalPct=pctN(totalCnt,d[lang].assessed);
+
+  // view toggle pills
+  const viewPills=[
+    {v:'schools',label:'&#127983; Per School'},
+    {v:'municipality',label:'&#127968; Per Municipality'},
+    {v:'sector',label:'&#127979; Per Sector'},
+  ].map(p=>`<span onclick="renderLevelsDetail('${level}','${lang}','${p.v}','');" style="cursor:pointer;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:12px;background:${levelDetailView===p.v?color:'#EEF2FF'};color:${levelDetailView===p.v?'#fff':'var(--muted)'};border:1.5px solid ${levelDetailView===p.v?color:'#C7D2FE'};transition:all .15s">${p.label}</span>`).join('');
+
+  let tableHtml='';
+
+  if(levelDetailView==='municipality'){
+    // aggregate by municipality
+    const munTotals={};
+    RAW.forEach(s=>{
+      const m=MUN_MAP[s.name]||'Unknown';
+      if(!munTotals[m]) munTotals[m]={cnt:0,assessed:0,schools:[]};
+      munTotals[m].cnt+=s[lang][level];
+      munTotals[m].assessed+=s[lang].assessed;
+      munTotals[m].schools.push(s);
+    });
+    const munRows=Object.entries(munTotals).map(([m,v])=>({m,cnt:v.cnt,assessed:v.assessed,pct_v:pctN(v.cnt,v.assessed),schools:v.schools})).sort((a,b)=>b.pct_v-a.pct_v);
+
+    if(levelDetailMunFilter){
+      // drilled into a municipality — show its schools
+      const mData=munRows.find(r=>r.m===levelDetailMunFilter);
+      const schoolRows=mData?[...mData.schools].map(s=>({name:s.name,sector:s.sector,assessed:s[lang].assessed,cnt:s[lang][level],pct_v:pctN(s[lang][level],s[lang].assessed)})).sort((a,b)=>b.pct_v-a.pct_v):[];
+      tableHtml=`<button class="back-btn" onclick="renderLevelsDetail('${level}','${lang}','municipality','')">&#8592; All Municipalities</button>
+      <p class="summary-section-title">&#127968; ${levelDetailMunFilter} — Schools</p>
+      <table class="prof-table"><thead><tr><th>School</th><th>Sector</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+      <tbody>${schoolRows.map(r=>`<tr onclick="selSchool='${r.name.replace(/'/g,"\\'")}';selLang='${lang}';switchTab('schools');renderDetail();" style="cursor:pointer">
+        <td><b>${r.name}</b></td><td><span class="sector-badge sector-${r.sector==='Public'?'pub':'pri'}">${r.sector}</span></td>
+        <td class="count-text">${r.cnt}</td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${color}"></div></div><span class="pct-text" style="color:${color}">${r.pct_v.toFixed(1)}%</span></div></td>
+      </tr>`).join('')}</tbody></table>`;
+    } else {
+      tableHtml=`<p class="summary-section-title">&#128205; By Municipality — click to drill down</p>
+      <table class="prof-table"><thead><tr><th>Municipality</th><th style="text-align:right">Schools</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+      <tbody>${munRows.map(r=>`<tr onclick="renderLevelsDetail('${level}','${lang}','municipality','${r.m.replace(/'/g,"\\'")}');" style="cursor:pointer">
+        <td><b>${r.m}</b></td><td class="count-text">${r.schools.length}</td><td class="count-text">${r.cnt}</td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${color}"></div></div><span class="pct-text" style="color:${color}">${r.pct_v.toFixed(1)}%</span></div></td>
+      </tr>`).join('')}</tbody></table>`;
+    }
+
+  } else if(levelDetailView==='sector'){
+    const sectors=['Public','Private'];
+    const sectorRows=sectors.map(sec=>{
+      const pool=RAW.filter(s=>s.sector===sec);
+      const cnt=pool.reduce((a,s)=>a+s[lang][level],0);
+      const assessed=pool.reduce((a,s)=>a+s[lang].assessed,0);
+      return {sec,cnt,assessed,pct_v:pctN(cnt,assessed),schools:pool};
+    });
+    tableHtml=`<p class="summary-section-title">&#127979; By Sector</p>
+    <table class="prof-table" style="margin-bottom:16px"><thead><tr><th>Sector</th><th style="text-align:right">Schools</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+    <tbody>${sectorRows.map(r=>`<tr>
+      <td><b>${r.sec}</b><span class="sector-badge sector-${r.sec==='Public'?'pub':'pri'}" style="margin-left:6px">${r.sec}</span></td>
+      <td class="count-text">${r.schools.length}</td><td class="count-text">${r.cnt}</td>
+      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${color}"></div></div><span class="pct-text" style="color:${color}">${r.pct_v.toFixed(1)}%</span></div></td>
+    </tr>`).join('')}</tbody></table>
+    ${sectorRows.map(sec=>{
+      const schoolRows=[...sec.schools].map(s=>({name:s.name,cnt:s[lang][level],assessed:s[lang].assessed,pct_v:pctN(s[lang][level],s[lang].assessed)})).sort((a,b)=>b.pct_v-a.pct_v);
+      return `<p class="summary-section-title" style="margin-top:12px">&#127983; ${sec.sec} Schools</p>
+      <table class="prof-table" style="margin-bottom:14px"><thead><tr><th>School</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+      <tbody>${schoolRows.map(r=>`<tr onclick="selSchool='${r.name.replace(/'/g,"\\'")}';selLang='${lang}';switchTab('schools');renderDetail();" style="cursor:pointer">
+        <td><b>${r.name}</b></td><td class="count-text">${r.cnt}</td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${color}"></div></div><span class="pct-text" style="color:${color}">${r.pct_v.toFixed(1)}%</span></div></td>
+      </tr>`).join('')}</tbody></table>`;
+    }).join('')}`;
+
+  } else {
+    // default: all schools
+    const rows=RAW.map(s=>({name:s.name,sector:s.sector,mun:MUN_MAP[s.name]||'',assessed:s[lang].assessed,cnt:s[lang][level],pct_v:pctN(s[lang][level],s[lang].assessed)})).sort((a,b)=>b.pct_v-a.pct_v);
+    tableHtml=`<p class="summary-section-title">&#127983; All Schools</p>
+    <table class="prof-table"><thead><tr><th>School</th><th>Municipality</th><th>Sector</th><th style="text-align:right">Count</th><th>% of Assessed</th></tr></thead>
+    <tbody>${rows.filter(r=>r.cnt>0).map(r=>`<tr onclick="selSchool='${r.name.replace(/'/g,"\\'")}';selLang='${lang}';switchTab('schools');renderDetail();" style="cursor:pointer">
+      <td><b>${r.name}</b></td><td style="font-size:.75rem;color:var(--muted)">${r.mun}</td>
+      <td><span class="sector-badge sector-${r.sector==='Public'?'pub':'pri'}">${r.sector}</span></td>
+      <td class="count-text">${r.cnt}</td>
+      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${r.pct_v}%;background:${color}"></div></div><span class="pct-text" style="color:${color}">${r.pct_v.toFixed(1)}%</span></div></td>
+    </tr>`).join('')}
+    ${rows.filter(r=>r.cnt===0).length?`<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:.75rem;padding:10px">${rows.filter(r=>r.cnt===0).length} schools with 0 learners omitted</td></tr>`:''}</tbody></table>`;
+  }
+
+  document.getElementById('detailBody').innerHTML=`
+  <div style="background:#FFF7ED;border:1.5px solid ${color};border-radius:10px;padding:14px;margin-bottom:14px">
+    <div style="font-weight:800;color:${color};font-size:.9rem">${LEVEL_ICONS[level]} ${LEVEL_LABELS[level]} · ${langLabel}</div>
+    <div style="font-size:.8rem;color:var(--muted);margin-top:4px">Division total: <b style="color:${color}">${totalCnt.toLocaleString()} learners (${totalPct.toFixed(1)}%)</b></div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;">View by:</span>
+    ${viewPills}
+  </div>
+  ${tableHtml}
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+}
+
+// ─── DOMAINS DETAIL ──────────────────────────────────────────────────────────
+function renderDomainsDetail(lang){
+  const langLabel=lang==='fil'?'Filipino':'English';
+  const pool=domainSector===''?RAW:RAW.filter(s=>s.sector===domainSector);
+  const sectorLabel=domainSector===''?'All Schools (Public + Private)':domainSector+' Schools Only';
+  const sectorIcon=domainSector===''?'&#127968;&#127979;':domainSector==='Public'?'&#127968;':'&#127979;';
+  document.getElementById('detailTitle').textContent='&#128202; Domain Performance — '+langLabel;
+  document.getElementById('detailSub').textContent=sectorLabel+' · Literal · Inference · Knowledge';
+
+  // aggregate from filtered pool
+  const agg={assessed:0,literal:0,inference:0,knowledge:0};
+  pool.forEach(s=>{agg.assessed+=s[lang].assessed;agg.literal+=s[lang].literal;agg.inference+=s[lang].inference;agg.knowledge+=s[lang].knowledge;});
+
+  // sector comparison summary cards (always show all 3 for context)
+  const sectorCompare=['','Public','Private'].map(sec=>{
+    const p2=sec===''?RAW:RAW.filter(s=>s.sector===sec);
+    const a2=p2.reduce((a,s)=>a+s[lang].assessed,0);
+    const l2=p2.reduce((a,s)=>a+s[lang].literal,0);
+    const i2=p2.reduce((a,s)=>a+s[lang].inference,0);
+    const k2=p2.reduce((a,s)=>a+s[lang].knowledge,0);
+    const ic=sec===''?'&#127968;&#127979;':sec==='Public'?'&#127968;':'&#127979;';
+    const lbl=sec===''?'All':sec;
+    const isSel=domainSector===sec;
+    return `<div onclick="domainSector='${sec}';renderDomainsNav(document.getElementById('navBody'));" style="cursor:pointer;background:${isSel?'#EEF2FF':'#F8FAFF'};border:1.5px solid ${isSel?'var(--navy)':'#E0E7FF'};border-radius:10px;padding:10px 12px;text-align:center;transition:all .15s;">
+      <div style="font-size:1.1rem">${ic}</div>
+      <div style="font-weight:800;font-size:.78rem;color:var(--navy);margin:3px 0">${lbl}</div>
+      <div style="font-size:.68rem;color:#2563EB;font-weight:700">Lit: ${pctN(l2,a2).toFixed(0)}%</div>
+      <div style="font-size:.68rem;color:#7C3AED;font-weight:700">Inf: ${pctN(i2,a2).toFixed(0)}%</div>
+      <div style="font-size:.68rem;color:#0891B2;font-weight:700">Know: ${pctN(k2,a2).toFixed(0)}%</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detailBody').innerHTML=`
+  <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+    <div style="font-size:1.3rem">${sectorIcon}</div>
+    <div><div style="font-weight:800;color:var(--navy);font-size:.85rem">${sectorLabel}</div>
+    <div style="font-size:.75rem;color:var(--muted)">${pool.length} schools · ${agg.assessed.toLocaleString()} assessed</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">${sectorCompare}</div>
+  <div class="domain-grid" style="margin-bottom:20px;">
+    ${['literal','inference','knowledge'].map(dom=>{const cnt=agg[dom];const p=pctN(cnt,agg.assessed);return `<div class="domain-card"><div class="dv" style="color:${DOMAIN_COLORS[dom]}">${cnt.toLocaleString()}</div><div style="font-size:.8rem;font-weight:700;margin:4px 0;color:${DOMAIN_COLORS[dom]}">${pct(cnt,agg.assessed)} of assessed</div><div class="dl">${DOMAIN_ICONS[dom]} ${DOMAIN_LABELS[dom]}</div></div>`;}).join('')}
+  </div>
+  <p class="summary-section-title">&#127983; Schools — Domain Breakdown (${langLabel})</p>
+  <table class="prof-table">
+    <thead><tr><th>School</th><th>Sector</th><th>Assessed</th><th>&#128270; Literal</th><th>&#129504; Inference</th><th>&#127747; Knowledge</th></tr></thead>
+    <tbody>${[...pool].sort((a,b)=>pctN(b[lang].literal,b[lang].assessed)-pctN(a[lang].literal,a[lang].assessed)).map(s=>{
+      const ld2=s[lang];
+      const lp=pctN(ld2.literal,ld2.assessed);
+      const ip=pctN(ld2.inference,ld2.assessed);
+      const kp=pctN(ld2.knowledge,ld2.assessed);
+      return `<tr onclick="selSchool='${s.name.replace(/'/g,"\\'")}';selLang='${lang}';switchTab('schools');renderDetail();" style="cursor:pointer">
+        <td><b>${s.name}</b></td>
+        <td><span class="sector-badge sector-${s.sector==='Public'?'pub':'pri'}">${s.sector}</span></td>
+        <td class="count-text">${ld2.assessed}</td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${lp}%;background:${DOMAIN_COLORS.literal}"></div></div><span class="pct-text" style="color:${DOMAIN_COLORS.literal}">${lp.toFixed(1)}%</span></div></td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${ip}%;background:${DOMAIN_COLORS.inference}"></div></div><span class="pct-text" style="color:${DOMAIN_COLORS.inference}">${ip.toFixed(1)}%</span></div></td>
+        <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${kp}%;background:${DOMAIN_COLORS.knowledge}"></div></div><span class="pct-text" style="color:${DOMAIN_COLORS.knowledge}">${kp.toFixed(1)}%</span></div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+}
+
+// ─── RANKINGS DETAIL ─────────────────────────────────────────────────────────
+function renderRankingsDetail(){
+  document.getElementById('detailTitle').textContent='&#127942; School Rankings';
+  document.getElementById('detailSub').textContent=(rankLang==='fil'?'Filipino':'English')+' · '+(rankSector||'All Sectors')+' · SHS Literacy';
+  let pool=RAW.filter(s=>rankSector===''||s.sector===rankSector);
+  const metricLabels={ind_pct:'% Independent',ind:'No. Independent',fru_pct:'% Frustration',assessed:'Total Assessed'};
+  const getVal=(s,m)=>{
+    const ld=s[rankLang];
+    if(m==='ind_pct') return pctN(ld.independent,ld.assessed);
+    if(m==='ind') return ld.independent;
+    if(m==='fru_pct') return pctN(ld.frustration,ld.assessed);
+    return s.assessed;
+  };
+  const neg=rankMetric==='fru_pct';
+  const sorted=[...pool].sort((a,b)=>neg?getVal(a,rankMetric)-getVal(b,rankMetric):getVal(b,rankMetric)-getVal(a,rankMetric));
+  const top10=sorted.slice(0,10);
+  const bot10=[...pool].sort((a,b)=>neg?getVal(b,rankMetric)-getVal(a,rankMetric):getVal(a,rankMetric)-getVal(b,rankMetric)).slice(0,10);
+  const fmtVal=(s,m)=>{
+    const v=getVal(s,m);
+    return m.includes('pct')?v.toFixed(1)+'%':Math.round(v).toLocaleString();
+  };
+  const metricColor=(s)=>{
+    const ind=pctN(s[rankLang].independent,s[rankLang].assessed);
+    return getBadgeColorInd(ind);
+  };
+  const rankRow=(s,i)=>{
+    const rnum=i===0?'rank-gold':i===1?'rank-silver':i===2?'rank-bronze':'rank-other';
+    const col=metricColor(s);
+    return `<tr onclick="selSchool='${s.name.replace(/'/g,"\\'")}';selLang='${rankLang}';switchTab('schools');renderDetail();" style="cursor:pointer">
+      <td><span class="rank-num ${rnum}">${i+1}</span></td>
+      <td><b>${s.name}</b><div style="font-size:.7rem;color:var(--muted)">${s.sector}</div></td>
+      <td style="text-align:right"><b style="color:${col};font-size:.88rem">${fmtVal(s,rankMetric)}</b><div style="font-size:.68rem;color:var(--muted)">${s.assessed} assessed</div></td>
+    </tr>`;
+  };
+  const langLabel=rankLang==='fil'?'Filipino':'English';
+  const langColor=rankLang==='fil'?FIL_COLOR:ENG_COLOR;
+  document.getElementById('detailBody').innerHTML=`
+  <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+    <div><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Language</div><div style="font-weight:800;color:${langColor};font-size:.9rem">${langLabel}</div></div>
+    <div style="border-left:1px solid #BBF7D0;padding-left:16px;"><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Metric</div><div style="font-weight:800;color:var(--navy);font-size:.9rem">&#128202; ${metricLabels[rankMetric]}</div></div>
+    <div style="border-left:1px solid #BBF7D0;padding-left:16px;"><div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Pool</div><div style="font-weight:800;color:var(--navy);font-size:.9rem">&#127983; ${pool.length} schools</div></div>
+  </div>
+  <div class="rankings-grid">
+    <div class="rank-card"><div class="rank-head top">&#127942; Top 10 — ${metricLabels[rankMetric]}</div><table class="rank-table"><thead><tr><th>#</th><th>School</th><th style="text-align:right">${metricLabels[rankMetric]}</th></tr></thead><tbody>${top10.map((s,i)=>rankRow(s,i)).join('')}</tbody></table></div>
+    <div class="rank-card"><div class="rank-head bot">&#9888;&#65039; Bottom 10 — Need Support</div><table class="rank-table"><thead><tr><th>#</th><th>School</th><th style="text-align:right">${metricLabels[rankMetric]}</th></tr></thead><tbody>${bot10.map((s,i)=>rankRow(s,i)).join('')}</tbody></table></div>
+  </div>
+  <div style="margin-top:16px;font-size:.7rem;color:var(--muted);text-align:center">&#128204; Project KABULIG | SDO Romblon CID | Developed by Sir Dyon</div>`;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderKPI(); renderNav(); renderDivisionOverview();
+</script>
+</body>
+</html>
